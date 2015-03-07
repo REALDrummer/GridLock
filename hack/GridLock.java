@@ -27,7 +27,7 @@ public class GridLock extends JApplet implements ActionListener{
     public static Intersection currently_viewed_intersection = null;
 
 
-    private static Timer timer = new Timer(5,this);
+    private Timer timer = new Timer(5,this);
 
 
     @Override
