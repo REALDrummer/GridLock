@@ -20,6 +20,7 @@ public class Intersection implements Paintable {
     private final IntersectionType type;
     private final Point location, index;  // NOTE: this is the location of the CENTER of the intersection
     private Road north_road = null, south_road = null, east_road = null, west_road = null;
+    private int width = 0, height = 0;  // initialize to 0 until it can be calculated based on connecting roads later on
 
     private TrafficFlow flow = TrafficFlow.NORTH_SOUTH;
 
@@ -52,6 +53,21 @@ public class Intersection implements Paintable {
 
     public enum RoadDirection {
         NORTH, SOUTH, EAST, WEST;
+
+        public Road getRoad(Intersection intersection) {
+            switch (this) {
+                case NORTH:
+                    return intersection.north_road;
+                case SOUTH:
+                    return intersection.south_road;
+                case EAST:
+                    return intersection.east_road;
+                case WEST:
+                    return intersection.west_road;
+                default:
+                    throw new RuntimeException("Cual tipo de camino es esto?!");
+            }
+        }
     }
 
     boolean addRoad(Road road, RoadDirection direction) {
@@ -83,6 +99,11 @@ public class Intersection implements Paintable {
             default:
                 throw new RuntimeException("What the hell kind of RoadDirection is " + direction + "?");
         }
+    }
+
+    public boolean contains(Point point) {
+        return point.x >= location.x - getWidth() / 2 && point.x <= location.x + getWidth() / 2 && point.y >= location.y - getHeight() / 2
+                && point.y <= location.y + getHeight() / 2;
     }
 
     public LinkedList<Car> getWaitingCars() {
@@ -128,15 +149,26 @@ public class Intersection implements Paintable {
         return west_road;
     }
 
+    public int getHeight() {
+        return height;
+    }
+
+    public int getWidth() {
+        return width;
+    }
+
+    void calcWidthAndHeight() {
+        // find the max values of the widths of the adjoining roads
+        int N_width = north_road.getSELanes() * Road.LANE_WIDTH - Road.LANE_OFFSET, S_width = south_road.getNWLanes() * Road.LANE_WIDTH - Road.LANE_OFFSET, E_width =
+                east_road.getNWLanes() * Road.LANE_WIDTH - Road.LANE_OFFSET, W_width = west_road.getSELanes() * Road.LANE_WIDTH - Road.LANE_OFFSET;
+        width = N_width > S_width ? N_width : S_width;
+        height = E_width > W_width ? E_width : W_width;
+    }
+
     @Override
     public void paint(Graphics g) {
         // intersections are represented by dark gray squares
         g.setColor(Color.DARK_GRAY);
-
-        // find the max values of the widths of the adjoining roads
-        int N_width = north_road.getSELanes() * Road.LANE_WIDTH - Road.LANE_OFFSET, S_width = south_road.getNWLanes() * Road.LANE_WIDTH - Road.LANE_OFFSET, E_width =
-                east_road.getNWLanes() * Road.LANE_WIDTH - Road.LANE_OFFSET, W_width = west_road.getSELanes() * Road.LANE_WIDTH - Road.LANE_OFFSET;
-        int width = N_width > S_width ? N_width : S_width, height = E_width > W_width ? E_width : W_width;
 
         // draw the intersection
         g.fillRect(location.x - width / 2, location.y - height / 2, width, height);
@@ -154,5 +186,9 @@ public class Intersection implements Paintable {
 
     public void setFlow(TrafficFlow flow) {
         this.flow = flow;
+    }
+
+    public boolean hasLaneOpen(byte lane, RoadDirection direction) {
+        return direction.getRoad(this).hasLaneOpen(lane, direction == RoadDirection.SOUTH || direction == RoadDirection.EAST);
     }
 }

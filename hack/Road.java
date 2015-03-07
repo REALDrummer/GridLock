@@ -8,6 +8,7 @@ import java.util.LinkedList;
 
 import hack.GridLock.Paintable;
 import hack.Intersection.RoadDirection;
+import hack.Intersection.TrafficFlow;
 
 public class Road implements Paintable {
     public static final Road[][] ROADS = new Road[GridLock.GRID_WIDTH + 1][GridLock.GRID_HEIGHT * 2 + 1];
@@ -32,7 +33,7 @@ public class Road implements Paintable {
 
     private final Point location, index;
 
-    public static final ArrayList<Car> CARS = new ArrayList<Car>();
+    private final LinkedList<Car> cars = new LinkedList<>();
 
     public enum LaneType {
         LEFT_TURN_LANE, RIGHT_TURN_LANE, NW_STRAIGHT_LANE, SE_STRAIGHT_LANE;
@@ -128,11 +129,11 @@ public class Road implements Paintable {
     }
 
     public void addCar(Car car) {
-        CARS.add(car);
+        cars.add(car);
     }
 
     public void removeCar(Car car) {
-        CARS.remove(car);
+        cars.remove(car);
     }
 
     public Point getIndex() {
@@ -153,6 +154,10 @@ public class Road implements Paintable {
 
     public int getSpeedLimit() {
         return SPEED_LIMIT;
+    }
+
+    public Intersection getIntersection(boolean NW) {
+        return NW ? NW_intersection : SE_intersection;
     }
 
     public Intersection getNWIntersection() {
@@ -181,6 +186,17 @@ public class Road implements Paintable {
             return LaneType.SE_STRAIGHT_LANE;
         else
             throw new RuntimeException("This isn't any kind of lane!");
+    }
+
+    public boolean hasLaneOpen(byte lane, boolean NW) {
+        return // right turns can always go (if they're clear)
+        getLaneType(lane, NW) == LaneType.RIGHT_TURN_LANE
+                ||
+                // straights can go if they have a green light
+                getLaneType(lane, NW) == LaneType.NW_STRAIGHT_LANE || !isNS() && getLaneType(lane, NW) == LaneType.SE_STRAIGHT_LANE
+                // left turns can go on left turn states
+                || getLaneType(lane, NW) == LaneType.LEFT_TURN_LANE && getNWIntersection() != null
+                && (isNS() && getNWIntersection().getFlow() == TrafficFlow.NORTH_SOUTH_LEFT || !isNS() && getNWIntersection().getFlow() == TrafficFlow.EAST_WEST_LEFT);
     }
 
     public boolean isLHLane(byte lane, boolean NW) {
