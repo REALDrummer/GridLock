@@ -3,6 +3,7 @@ package hack;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.util.ArrayList;
 import java.util.LinkedList;
 
 import hack.GridLock.Paintable;
@@ -10,6 +11,8 @@ import hack.Intersection.RoadDirection;
 
 public class Road implements Paintable {
     public static final Road[][] ROADS = new Road[GridLock.GRID_WIDTH + 1][GridLock.GRID_HEIGHT * 2 + 1];
+
+    private static final int SPEED_LIMIT = 45;
 
     public static final int LANE_OFFSET = 2;
     public static int LANE_WIDTH;
@@ -29,10 +32,10 @@ public class Road implements Paintable {
 
     private final Point location, index;
 
-    public static final LinkedList<Car> cars = new LinkedList<Car>();
+    public static final ArrayList<Car> CARS = new ArrayList<Car>();
 
-    public enum Lane {
-        LEFT_LANE, STRAIGHT_LANE, RIGHT_LANE
+    public enum LaneType {
+        LEFT_TURN_LANE, RIGHT_TURN_LANE, NW_STRAIGHT_LANE, SE_STRAIGHT_LANE;
     }
 
     public Road(int NW_left_turn_lanes, int straight_lanes, int NW_right_turn_lanes, int SE_left_turn_lanes, int SE_right_turn_lanes) {
@@ -125,11 +128,11 @@ public class Road implements Paintable {
     }
 
     public void addCar(Car car) {
-        cars.add(car);
+        CARS.add(car);
     }
 
     public void removeCar(Car car) {
-        cars.remove(car);
+        CARS.remove(car);
     }
 
     public Point getIndex() {
@@ -148,6 +151,10 @@ public class Road implements Paintable {
         return getLanes(false);
     }
 
+    public int getSpeedLimit() {
+        return SPEED_LIMIT;
+    }
+
     public byte getLanes(boolean NW) {
         if (NW)
             return (byte) (NW_left_turn_lanes + NW_right_turn_lanes + straight_lanes * 2);
@@ -155,88 +162,61 @@ public class Road implements Paintable {
             return (byte) (SE_left_turn_lanes + SE_right_turn_lanes + straight_lanes * 2);
     }
 
-    public Lane getLaneType(byte lane, boolean NW) {
-        if (NW) {
-            if (isRHLane(lane, NW))
-                return Lane.RIGHT_LANE;
-            else if (isLHLane(lane, NW))
-                return Lane.LEFT_LANE;
-            else if (isSLane(lane, NW))
-                return Lane.STRAIGHT_LANE;
-            else
-                throw new RuntimeException("This isn't any kind of lane!");
-        } else {
-            if (isRHLane(lane, NW))
-                return Lane.RIGHT_LANE;
-            else if (isLHLane(lane, NW))
-                return Lane.LEFT_LANE;
-            else if (isSLane(lane, NW))
-                return Lane.STRAIGHT_LANE;
-            else
-                throw new RuntimeException("This isn't any kind of lane!");
-        }
-    }
-
-    public boolean isRHLane(byte lane, boolean NW) {
-        if (NW) {
-            if (NW_right_turn_lanes == 1 && lane == getNWLanes()) {
-                return true;
-            } else if (NW_right_turn_lanes == 2 && lane == getNWLanes() || lane == getNWLanes() - 1) {
-                return true;
-            } else {
-                return false;
-            }
-        } else if (!NW) {
-            if (SE_right_turn_lanes == 1 && lane == 0) {
-                return true;
-            } else if (SE_right_turn_lanes == 2 && lane == 0 || lane == 1) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+    public LaneType getLaneType(byte lane, boolean NW) {
+        if (isRHLane(lane, NW))
+            return LaneType.RIGHT_TURN_LANE;
+        else if (isLHLane(lane, NW))
+            return LaneType.LEFT_TURN_LANE;
+        else if (isNWLane(lane, NW))
+            return LaneType.NW_STRAIGHT_LANE;
+        else if (isSELane(lane, NW))
+            return LaneType.SE_STRAIGHT_LANE;
+        else
+            throw new RuntimeException("This isn't any kind of lane!");
     }
 
     public boolean isLHLane(byte lane, boolean NW) {
-        if (NW) {
-            if (NW_left_turn_lanes == 2 && lane == straight_lanes || lane == (straight_lanes + 1)) {
-                return true;
-            } else if (NW_left_turn_lanes == 1 && lane == straight_lanes) {
-                return true;
-            } else {
-                return false;
-            }
-        } else if (!NW) {
-            if (NW_left_turn_lanes == 2 && lane == straight_lanes || lane == (straight_lanes + 1)) {
-                return true;
-            } else if (NW_left_turn_lanes == 1 && lane == straight_lanes) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+        if (NW && isNS())
+            return lane >= straight_lanes && lane < straight_lanes + NW_left_turn_lanes;
+        else if (NW && !isNS())
+            return lane >= straight_lanes + NW_right_turn_lanes && lane < straight_lanes + NW_right_turn_lanes + NW_left_turn_lanes;
+        else if (!NW && isNS())
+            return lane >= straight_lanes + SE_right_turn_lanes && lane < straight_lanes + SE_right_turn_lanes + SE_left_turn_lanes;
+        else
+            return lane >= straight_lanes && lane < straight_lanes + SE_left_turn_lanes;
     }
 
-    public boolean isSLane(byte lane, boolean NW) {
-        if (NW) {
-            if (lane < straight_lanes || lane == (straight_lanes + NW_left_turn_lanes) && lane < (2 * straight_lanes + NW_left_turn_lanes)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else if (!NW) {
-            if (lane < straight_lanes || lane == (straight_lanes + NW_left_turn_lanes) && lane < (2 * straight_lanes + NW_left_turn_lanes)) {
-                return true;
-            } else {
-                return false;
-            }
-        } else {
-            return false;
-        }
+    public boolean isRHLane(byte lane, boolean NW) {
+        if (NW && !isNS())
+            return lane < NW_right_turn_lanes;
+        else if (!NW && isNS())
+            return lane < SE_right_turn_lanes;
+        else if (NW && isNS())
+            return lane >= straight_lanes * 2 + NW_left_turn_lanes;
+        else
+            return lane >= straight_lanes * 2 + SE_left_turn_lanes;
+    }
+
+    public boolean isNWLane(byte lane, boolean NW) {
+        if (NW && isNS())
+            return lane >= straight_lanes + NW_left_turn_lanes && lane < straight_lanes * 2 + NW_left_turn_lanes;
+        else if (!NW && isNS())
+            return lane >= SE_right_turn_lanes + straight_lanes + SE_left_turn_lanes;
+        else if (NW && !isNS())
+            return lane >= NW_right_turn_lanes && lane < NW_right_turn_lanes + straight_lanes;
+        else
+            return lane < straight_lanes;
+    }
+
+    public boolean isSELane(byte lane, boolean NW) {
+        if (NW && isNS())
+            return lane < straight_lanes;
+        else if (NW && !isNS())
+            return lane >= NW_right_turn_lanes + straight_lanes + NW_left_turn_lanes;
+        else if (!NW && isNS())
+            return lane >= SE_right_turn_lanes && lane < SE_right_turn_lanes + straight_lanes;
+        else
+            return lane >= SE_right_turn_lanes + straight_lanes + SE_left_turn_lanes;
     }
 
     @Override
@@ -251,11 +231,11 @@ public class Road implements Paintable {
             // first, draw the top half for the lanes on the north half of the road
             // draw the white background
             int low_y = NW_intersection == null ? 0 : NW_intersection.getLocation().y;
-            g.fillRect(location.x - LANE_WIDTH * getNWLanes() / 2, low_y, LANE_WIDTH * getNWLanes() - LANE_OFFSET, low_y - location.y);
+            g.fillRect(location.x - LANE_WIDTH * getNWLanes() / 2, low_y, LANE_WIDTH * getNWLanes() - LANE_OFFSET, location.y - low_y);
 
             // draw the lanes
             for (byte lane = 0; lane < getNWLanes(); lane++) {
-                if (getLaneType(lane, true) == Lane.STRAIGHT_LANE)
+                if (getLaneType(lane, true) == LaneType.NW_STRAIGHT_LANE || getLaneType(lane, true) == LaneType.SE_STRAIGHT_LANE)
                     g.setColor(Color.BLACK);
                 else
                     g.setColor(Color.DARK_GRAY);
@@ -266,11 +246,11 @@ public class Road implements Paintable {
             // draw the white background
             g.setColor(Color.WHITE);
             int high_y = SE_intersection == null ? GridLock.WINDOW_HEIGHT : SE_intersection.getLocation().y;
-            g.fillRect(location.x - LANE_WIDTH * getSELanes() / 2, location.y, LANE_WIDTH * getSELanes(), high_y - location.y);
+            g.fillRect(location.x - LANE_WIDTH * getSELanes() / 2, location.y, LANE_WIDTH * getSELanes() - LANE_OFFSET, high_y - location.y);
 
             // draw the lanes
             for (byte lane = 0; lane < getSELanes(); lane++) {
-                if (getLaneType(lane, false) == Lane.STRAIGHT_LANE)
+                if (getLaneType(lane, false) == LaneType.NW_STRAIGHT_LANE || getLaneType(lane, false) == LaneType.SE_STRAIGHT_LANE)
                     g.setColor(Color.BLACK);
                 else
                     g.setColor(Color.DARK_GRAY);
@@ -285,7 +265,7 @@ public class Road implements Paintable {
 
             // draw the lanes
             for (byte lane = 0; lane < getNWLanes(); lane++) {
-                if (getLaneType(lane, true) == Lane.STRAIGHT_LANE)
+                if (getLaneType(lane, true) == LaneType.NW_STRAIGHT_LANE || getLaneType(lane, true) == LaneType.SE_STRAIGHT_LANE)
                     g.setColor(Color.BLACK);
                 else
                     g.setColor(Color.DARK_GRAY);
@@ -300,7 +280,7 @@ public class Road implements Paintable {
 
             // draw the lanes
             for (byte lane = 0; lane < getSELanes(); lane++) {
-                if (getLaneType(lane, false) == Lane.STRAIGHT_LANE)
+                if (getLaneType(lane, false) == LaneType.NW_STRAIGHT_LANE || getLaneType(lane, false) == LaneType.SE_STRAIGHT_LANE)
                     g.setColor(Color.BLACK);
                 else
                     g.setColor(Color.DARK_GRAY);

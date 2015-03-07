@@ -134,8 +134,8 @@ public class Intersection implements Paintable {
         g.setColor(Color.DARK_GRAY);
 
         // find the max values of the widths of the adjoining roads
-        int N_width = north_road.getSELanes() * Road.LANE_WIDTH, S_width = south_road.getNWLanes() * Road.LANE_WIDTH, E_width = east_road.getNWLanes() * Road.LANE_WIDTH, W_width =
-                west_road.getSELanes() * Road.LANE_WIDTH;
+        int N_width = north_road.getSELanes() * Road.LANE_WIDTH - Road.LANE_OFFSET, S_width = south_road.getNWLanes() * Road.LANE_WIDTH - Road.LANE_OFFSET, E_width =
+                east_road.getNWLanes() * Road.LANE_WIDTH - Road.LANE_OFFSET, W_width = west_road.getSELanes() * Road.LANE_WIDTH - Road.LANE_OFFSET;
         int width = N_width > S_width ? N_width : S_width, height = E_width > W_width ? E_width : W_width;
 
         // draw the intersection
@@ -148,7 +148,11 @@ public class Intersection implements Paintable {
                 + west_road.getIndex();
     }
 
-    public TrafficFlow getFlow(){ return flow;}
+    public TrafficFlow getFlow() {
+        return flow;
+    }
 
-    public void setFlow(TrafficFlow flow){this.flow = flow;}
+    public void setFlow(TrafficFlow flow) {
+        this.flow = flow;
+    }
 }

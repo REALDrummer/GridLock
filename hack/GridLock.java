@@ -12,11 +12,13 @@ import java.awt.event.ActionListener;
 
 import javax.swing.JApplet;
 
-public class GridLock extends JApplet implements ActionListener{
+public class GridLock extends JApplet implements ActionListener {
     private static final long serialVersionUID = 1099492150132430698L;
 
-    public static final int WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
+    public static final float SIMULATION_SPEED_MULTIPLIER = 10;
+
     public static final int GRID_WIDTH = 3, GRID_HEIGHT = 2;
+    public static final int WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
 
     public static GridLock applet;
     public static Container content;
@@ -44,7 +46,7 @@ public class GridLock extends JApplet implements ActionListener{
 
         // create the roads
         for (int i = 0; i < (GRID_WIDTH + 1) * (GRID_HEIGHT * 2 + 1) - (GRID_HEIGHT + 1); i++)
-            new Road(0, 1, 0, 0, 0);
+            new Road(1, 2, 1, 1, 0);
 
         // calculate the width of a lane based on the number of roads and the size of the screen
         /* the scaling below is based on a scaling model in which each road when assumed to be four lanes should have a width equal to 1/3 the length of road between two
@@ -82,26 +84,20 @@ public class GridLock extends JApplet implements ActionListener{
     }
 
     @Override
-    /*
-        Event Logic of the Program
-    */
+    /* Event Logic of the Program */
     public void actionPerformed(ActionEvent e) {
-        for (Car i : Road.cars){
+        for (Car car : Road.CARS) {
             Point p = new Point();
-            if (i.getRoad().isNS()) {
-                if(i.velocity()>0) {
-                    p.setLocation(i.getLocation().getX(), i.getLocation().getY() + 1.0);
-                } else{
-                    p.setLocation(i.getLocation().getX(), i.getLocation().getY() - 1.0);
-                }
-            } else{
-                if(i.velocity()>0) {
-                    p.setLocation(i.getLocation().getX() - 1.0, i.getLocation().getY());
-                } else{
-                    p.setLocation(i.getLocation().getX() + 1.0, i.getLocation().getY());
-                }
-            }
-            i.setLocation(p);
+            if (car.getRoad().isNS())
+                if (car.velocity() > 0)
+                    p.setLocation(car.getLocation().getX(), car.getLocation().getY() + 1.0);
+                else
+                    p.setLocation(car.getLocation().getX(), car.getLocation().getY() - 1.0);
+            else if (car.velocity() > 0)
+                p.setLocation(car.getLocation().getX() - 1.0, car.getLocation().getY());
+            else
+                p.setLocation(car.getLocation().getX() + 1.0, car.getLocation().getY());
+            car.setLocation(p);
         }
         repaint();
     }
