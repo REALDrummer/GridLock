@@ -9,7 +9,7 @@ import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.JApplet;
+import javax.swing.*;
 
 public class GridLock extends JApplet implements ActionListener{
     private static final long serialVersionUID = 1099492150132430698L;
@@ -23,6 +23,8 @@ public class GridLock extends JApplet implements ActionListener{
 
     public static Intersection currently_viewed_intersection = null;
 
+    Timer timer = new Timer(5,this);
+
     @Override
     public void init() {
         // initialize basic stuff
@@ -30,6 +32,7 @@ public class GridLock extends JApplet implements ActionListener{
         content = getContentPane();
         content.setFocusable(true);
         graphics = (Graphics2D) getGraphics();
+
 
         // create the Intersections
         for (int i = 0; i < GRID_WIDTH * GRID_HEIGHT; i++)
@@ -44,6 +47,7 @@ public class GridLock extends JApplet implements ActionListener{
         mouse_location = applet.getMousePosition();
         last_mouse_location = null;
         setContentPane(content);
+        timer.start();
     }
 
     @Override
