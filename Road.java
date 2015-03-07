@@ -35,6 +35,7 @@ public class Road {
         this.Int2_RL = (byte) Int2_RL;
 
         index = new Point(road_index1, road_index2);
+		Int1_lanes = Int1_LL + Int1_SL + Int1_RL;
 
         // determine the intersections that this road is connected to
         // TODO: account for indices out of range
@@ -124,11 +125,83 @@ public class Road {
         cars.remove(car);
     }
 
-    public Lane getLaneType(byte lane, Intersection intersection) {
-        // TODO
+	public Lane getLaneType(byte lane, boolean NW){
+		switch(NW)
+		case NW:
+			if(isRHLane(lane, NW))
+				return RIGHT_LANE;
+			if(isLHLane(lane, NW))
+				return LEFT_LANE;
+			if(isSLane(lane, NW))
+				return STRAIGHT_LANE;
+		case !NW:
+			if(isRHLane(lane, NW))
+				return RIGHT_LANE;
+			if(isLHLane(lane, NW))
+				return LEFT_LANE;
+			if(isSLane(lane, NW))
+				return STRAIGHT_LANE;
+	}
+
+	public boolean isRHLane(byte lane, boolean NW){
+		if(NW){
+			if(Int1_RL == 1 && lane == Int1_lanes){
+				return 1;
+			}else if(Int1_RL == 2 && lane == Int1_lanes || Int1_lanes - 1){
+				return 1;
+			}else{
+				return 0;
+			}
+		}else if(!NW){
+			if(Int2_RL == 1 && lane == 0){
+				return 1;
+			}else if(Int2_RL == 2 && lane == 0 || lane == 1){
+				return 1;
+			}else{
+				return 0;
+			}
+		}else{
+			return 0;
+		}
     }
 
-    public Lane isRHLane(byte lane, boolean NS) {
-        // TODO
+	public boolean isLHLane(byte lane, boolean NW) {
+		if(NW){
+			if(Int1_LL == 2 && lane == Int1_SL || lane == (Int1_SL + 1)){
+				return 1;
+			}else if(Int1_LL == 1 && lane == Int1_SL){
+				return 1;
+			}else{
+				return 0;
+			}
+		}else if(!NW){
+			if(Int1_LL == 2 && lane == Int1_SL || lane == (Int1_SL + 1)){
+				return 1;
+			}else if(Int1_LL == 1 && lane == Int1_SL){
+				return 1;
+			}else{
+				return 0;
+			}
+		}else{
+			return 0;
+		}
+	}
+		
+	public boolean isSLane(byte lane, boolean NW) {
+		if(NW){
+			if(lane < Int1_SL || lane == (Int1_SL + Int1_LL) && lane < (2 * Int1_SL + Int1_LL)){
+				return 1;
+			}else{
+				return 0;
+			}
+		}else if(!NW){
+			if(lane < Int1_SL || lane == (Int1_SL + Int1_LL) && lane < (2 * Int1_SL + Int1_LL)){
+				return 1;
+			}else{
+				return 0;
+			}
+		}else{
+			return 0;
+		}
     }
 }
