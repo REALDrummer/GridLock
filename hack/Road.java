@@ -29,7 +29,7 @@ public class Road implements Paintable {
 
     private final Point location, index;
 
-    public final LinkedList<Car> cars = new LinkedList<>();
+    public static final LinkedList<Car> cars = new LinkedList<Car>();
 
     public enum Lane {
         LEFT_LANE, STRAIGHT_LANE, RIGHT_LANE

@@ -16,10 +16,12 @@ public class Intersection implements Paintable {
 
     private static int intersection_index_x = 0, intersection_index_y = 0;
 
-    private final LinkedList<Car> waiting = new LinkedList<>();
+    private final LinkedList<Car> waiting = new LinkedList<Car>();
     private final IntersectionType type;
     private final Point location, index;  // NOTE: this is the location of the CENTER of the intersection
     private Road north_road = null, south_road = null, east_road = null, west_road = null;
+
+    private TrafficFlow flow = TrafficFlow.NORTH_SOUTH;
 
     public Intersection(IntersectionType type) {
         this.type = type;
@@ -145,4 +147,8 @@ public class Intersection implements Paintable {
         return index.toString() + ":\n" + "N -> " + north_road.getIndex() + "\nS -> " + south_road.getIndex() + "\nE -> " + east_road.getIndex() + "\nW -> "
                 + west_road.getIndex();
     }
+
+    public TrafficFlow getFlow(){ return flow;}
+
+    public void setFlow(TrafficFlow flow){this.flow = flow;}
 }

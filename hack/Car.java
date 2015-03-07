@@ -12,6 +12,7 @@ public class Car implements Paintable {
     private Point location;
     private double velocity;
     private boolean halfway;
+    private Road road;
 
     Car(float acceleration, Point location, double velocity) {
         this.acceleration = acceleration;
@@ -40,5 +41,21 @@ public class Car implements Paintable {
         // represent cars using yellow circles as wide as the lanes
         g.setColor(Color.YELLOW);
         g.fillOval(location.x - Road.LANE_WIDTH / 2, location.y - Road.LANE_WIDTH / 2, Road.LANE_WIDTH, Road.LANE_WIDTH);
+    }
+
+    Road getRoad() {
+        return road;
+    }
+
+    void setRoad(Road r) {
+        road = r;
+    }
+
+    void setLocation(Point p) {
+        location.setLocation(p.getX(), p.getY());
+    }
+
+    void setVelocity(double v) {
+        this.velocity = v;
     }
 }

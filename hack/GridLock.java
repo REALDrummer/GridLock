@@ -7,10 +7,12 @@ import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JApplet;
 
-public class GridLock extends JApplet {
+public class GridLock extends JApplet implements ActionListener{
     private static final long serialVersionUID = 1099492150132430698L;
 
     public static final int WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
@@ -77,5 +79,30 @@ public class GridLock extends JApplet {
         // paint the cars
         for (Car car : Car.CARS)
             car.paint(g);
+    }
+
+    @Override
+    /*
+        Event Logic of the Program
+    */
+    public void actionPerformed(ActionEvent e) {
+        for (Car i : Road.cars){
+            Point p = new Point();
+            if (i.getRoad().isNS()) {
+                if(i.velocity()>0) {
+                    p.setLocation(i.getLocation().getX(), i.getLocation().getY() + 1.0);
+                } else{
+                    p.setLocation(i.getLocation().getX(), i.getLocation().getY() - 1.0);
+                }
+            } else{
+                if(i.velocity()>0) {
+                    p.setLocation(i.getLocation().getX() - 1.0, i.getLocation().getY());
+                } else{
+                    p.setLocation(i.getLocation().getX() + 1.0, i.getLocation().getY());
+                }
+            }
+            i.setLocation(p);
+        }
+        repaint();
     }
 }
