@@ -191,4 +191,8 @@ public class Intersection implements Paintable {
     public boolean hasLaneOpen(byte lane, RoadDirection direction) {
         return direction.getRoad(this).hasLaneOpen(lane, direction == RoadDirection.SOUTH || direction == RoadDirection.EAST);
     }
+
+    public float getWidth(){return 0;}
+
+    public float getHeight(){return 0;};
 }

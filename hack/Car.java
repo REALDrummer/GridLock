@@ -7,7 +7,7 @@ import java.awt.*;
 import java.util.ArrayList;
 
 public class Car implements Paintable {
-    public static final ArrayList<Car> CARS = new ArrayList<>();
+    public static final ArrayList<Car> CARS = new ArrayList<Car>();
 
     // private float acceleration;
     private Point location;
