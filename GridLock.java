@@ -27,11 +27,13 @@ public class GridLock extends JApplet {
         content.setFocusable(true);
         graphics = (Graphics2D) getGraphics();
 
-        // create the Intersection and Road objects to fill the grid
-        for (int w = 0; w < GRID_WIDTH; w++)
-            for (int h = 0; h < GRID_HEIGHT; h++)
-                Intersection.INTERSECTIONS[w][h] =
-                        new Intersection(IntersectionType.STOP_LIGHT, content.getWidth() / (GRID_WIDTH + 1), content.getHeight() / (GRID_HEIGHT + 1));
+        // create the Intersections
+        for (int i = 0; i < GRID_WIDTH*GRID_HEIGHT; i++) 
+            new Intersection(IntersectionType.STOP_LIGHT);
+        
+        // create the roads
+        for (int i = 0; i < (GRID_WIDTH*2+1)*(GRID_HEIGHT*2+1))
+            new Road(1, 0, 0, 0, 0);
 
         setSize(800, 800);
 

@@ -6,16 +6,31 @@ import javax.lang.model.type.IntersectionType;
 import javax.naming.spi.DirStateFactory.Result;
 
 public class Intersection {
-    public static final Intersection[][] INTERSECTIONS;
-    
+    public static final Intersection[][] INTERSECTIONS = new Intersection[GridLock.GRID_WIDTH][GridLock.GRID_HEIGHT];
+
+    private static int intersection_index1 = 0, intersection_index2 = 0;
+
     private final LinkedList<Car> waiting = new LinkedList<>();
     private final IntersectionType type;
-    private final Point location;  // NOTE: this is the location of the CENTER of the intersection
+    private final Point location, index;  // NOTE: this is the location of the CENTER of the intersection
     private final Road north_road = null, south_road = null, east_road = null, west_road = null;
 
-    public Intersection(IntersectionType type, int x, int y) {
+    public Intersection(IntersectionType type) {
         this.type = type;
-        location = new Point(x, y);
+        location =
+                new Point((intersection_index1 + 1) * GridLock.content.getWidth() / (GridLock.GRID_WIDTH + 1), (intersection_index2 + 1) * GridLock.content.getHeight()
+                        / (GridLock.GRID_HEIGHT + 1));
+        index = new Point(intersection_index1, intersection_index2);
+
+        // add the new Intersection to the array of Intersections
+        INTERSECTIONS[intersection_index1][intersection_index2] = this;
+
+        // increment intersection indices
+        if (intersection_index2 == GridLock.GRID_WIDTH - 1) {
+            intersection_index1++;
+            intersection_index2 = 0;
+        } else
+            intersection_index2++;
     }
 
     public enum IntersectionType {
