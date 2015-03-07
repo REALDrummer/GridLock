@@ -17,6 +17,8 @@ public class Intersection {
     private final Point location, index;  // NOTE: this is the location of the CENTER of the intersection
     private Road north_road = null, south_road = null, east_road = null, west_road = null;
 
+    private TrafficFlow flow = TrafficFlow.NORTH_SOUTH;
+
     public Intersection(IntersectionType type) {
         this.type = type;
 
@@ -121,4 +123,8 @@ public class Intersection {
     public Road getWestRoad() {
         return west_road;
     }
+
+    public TrafficFlow getFlow(){ return flow;}
+
+    public void setFlow(TrafficFlow flow){this.flow = flow;}
 }
