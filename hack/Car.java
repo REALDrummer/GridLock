@@ -8,6 +8,7 @@ public class Car {
     private Point location;
     private double velocity;
     private boolean halfway;
+    private Road road;
 
     Car(float acceleration, Point location, double velocity){
         this.acceleration = acceleration;
@@ -29,5 +30,19 @@ public class Car {
 
     boolean isHalfWay(){
         return halfway;
+    }
+
+    Road getRoad(){ return road;}
+
+    void setRoad(Road r){
+        road = r;
+    }
+
+    void setLocation(Point p){
+        location.setLocation(p.getX(),p.getY());
+    }
+
+    void setVelocity(double v){
+        this.velocity = v;
     }
 }
