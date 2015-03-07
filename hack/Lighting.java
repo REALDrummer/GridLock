@@ -1,8 +1,5 @@
 package hack;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
 import java.util.Random;
 
 public class Lighting {
@@ -18,7 +15,24 @@ public class Lighting {
         }
     }
 
-    private void run(){
-
+    private void lightingRun(){
+        setAllNS();
     }
+
+    private void setAllNS(){
+        for (int i = 0; i < GridLock.GRID_WIDTH; i++) {
+            for (int j = 0; j < GridLock.GRID_HEIGHT; j++) {
+                Intersection.INTERSECTIONS[i][j].setFlow(Intersection.TrafficFlow.NORTH_SOUTH);
+            }
+        }
+    }
+
+    private void setALLEW(){
+        for (int i = 0; i < GridLock.GRID_WIDTH; i++) {
+            for (int j = 0; j < GridLock.GRID_HEIGHT; j++) {
+                Intersection.INTERSECTIONS[i][j].setFlow(Intersection.TrafficFlow.EAST_WEST);
+            }
+        }
+    }
+
 }
