@@ -19,7 +19,7 @@ public class GridLock extends JApplet implements ActionListener {
 
     public static final int GRID_WIDTH = 3, GRID_HEIGHT = 2;
     public static final int WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
-    public static final int TICKS_PER_SECOND = 2;
+    public static final int PAINT_TIME = 650, ALGO_TICK_TIME = 500;
     public static final int MAX_CARS = 10;
     public static final double CARS_SPAWNED_PER_SECOND = 1, CARS_PER_SECOND_VARIANCE = 0.5;
 
@@ -31,7 +31,8 @@ public class GridLock extends JApplet implements ActionListener {
 
     public static Intersection currently_viewed_intersection = null;
 
-    private Timer timer = new Timer(1000 / TICKS_PER_SECOND, this);
+    public static final AlgoRunner algo_runner = new AlgoRunner();
+    private Timer paint_timer = new Timer(PAINT_TIME, this), run_timer = new Timer((int) (ALGO_TICK_TIME / SIMULATION_SPEED_MULTIPLIER), algo_runner);
 
     public static interface Paintable {
         void paint(Graphics g);
@@ -51,13 +52,15 @@ public class GridLock extends JApplet implements ActionListener {
 
         // create the roads
         for (int i = 0; i < (GRID_WIDTH + 1) * (GRID_HEIGHT * 2 + 1) - (GRID_HEIGHT + 1); i++)
-            new Road(1, 2, 1, 1, 0);
+            new Road(1, 2, 0, 1, 0);
 
         // calculate the width of a lane based on the number of roads and the size of the screen
         /* the scaling below is based on a scaling model in which each road when assumed to be four lanes should have a width equal to 1/3 the length of road between two
          * intersectins; use this to calculate the lane width of both NS and EW roads, then use the smaller of the two values as the global lane width */
         int NS_lane_width = WINDOW_WIDTH / (GRID_WIDTH * 4 + 3) / 4, EW_lane_width = WINDOW_HEIGHT / (GRID_HEIGHT * 4 + 3) / 4;
         Road.LANE_WIDTH = NS_lane_width < EW_lane_width ? NS_lane_width : EW_lane_width;
+
+        Car.CAR_SIZE = Road.LANE_WIDTH - Road.LANE_OFFSET - 2;
 
         // calculate the intersections' dimensions using the added roads
         for (Intersection[] intersections : Intersection.INTERSECTIONS)
@@ -69,7 +72,8 @@ public class GridLock extends JApplet implements ActionListener {
         mouse_location = applet.getMousePosition();
         last_mouse_location = null;
         setContentPane(content);
-        timer.start();
+        paint_timer.start();
+        run_timer.start();
     }
 
     @Override
@@ -95,14 +99,7 @@ public class GridLock extends JApplet implements ActionListener {
     }
 
     @Override
-    /* Event Logic of the Program */
     public void actionPerformed(ActionEvent e) {
-        int cars_to_spawn = (int) (CARS_SPAWNED_PER_SECOND + (Math.random() * CARS_PER_SECOND_VARIANCE * 2 - CARS_PER_SECOND_VARIANCE));
-        for (int i = 0; i < cars_to_spawn; i++)
-            new Car();
-
-        for (Car car : Car.CARS)
-            car.tick();
         repaint();
     }
 }

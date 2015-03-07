@@ -6,7 +6,9 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.util.HashSet;
 import java.util.LinkedList;
+import java.util.Set;
 
 import javax.lang.model.type.IntersectionType;
 import javax.naming.spi.DirStateFactory.Result;
@@ -16,7 +18,7 @@ public class Intersection implements Paintable {
 
     private static int intersection_index_x = 0, intersection_index_y = 0;
 
-    private final LinkedList<Car> waiting = new LinkedList<Car>();
+    private final HashSet<Car> waiting = new HashSet<>();
     private final IntersectionType type;
     private final Point location, index;  // NOTE: this is the location of the CENTER of the intersection
     private Road north_road = null, south_road = null, east_road = null, west_road = null;
@@ -106,7 +108,7 @@ public class Intersection implements Paintable {
                 && point.y <= location.y + getHeight() / 2;
     }
 
-    public LinkedList<Car> getWaitingCars() {
+    public Set<Car> getWaitingCars() {
         return waiting;
     }
 
@@ -191,8 +193,4 @@ public class Intersection implements Paintable {
     public boolean hasLaneOpen(byte lane, RoadDirection direction) {
         return direction.getRoad(this).hasLaneOpen(lane, direction == RoadDirection.SOUTH || direction == RoadDirection.EAST);
     }
-
-    public float getWidth(){return 0;}
-
-    public float getHeight(){return 0;};
 }

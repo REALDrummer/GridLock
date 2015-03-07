@@ -191,12 +191,20 @@ public class Road implements Paintable {
     public boolean hasLaneOpen(byte lane, boolean NW) {
         return // right turns can always go (if they're clear)
         getLaneType(lane, NW) == LaneType.RIGHT_TURN_LANE
-                ||
                 // straights can go if they have a green light
-                getLaneType(lane, NW) == LaneType.NW_STRAIGHT_LANE || !isNS() && getLaneType(lane, NW) == LaneType.SE_STRAIGHT_LANE
+                || getLaneType(lane, NW) == LaneType.NW_STRAIGHT_LANE
+                && (getNWIntersection() == null || isNS() && getNWIntersection().getFlow() == TrafficFlow.NORTH_SOUTH || !isNS()
+                        && getNWIntersection().getFlow() == TrafficFlow.EAST_WEST)
+                || getLaneType(lane, NW) == LaneType.SE_STRAIGHT_LANE
+                && (getSEIntersection() != null || isNS() && getSEIntersection().getFlow() == TrafficFlow.NORTH_SOUTH || !isNS()
+                        && getSEIntersection().getFlow() == TrafficFlow.EAST_WEST)
                 // left turns can go on left turn states
-                || getLaneType(lane, NW) == LaneType.LEFT_TURN_LANE && getNWIntersection() != null
-                && (isNS() && getNWIntersection().getFlow() == TrafficFlow.NORTH_SOUTH_LEFT || !isNS() && getNWIntersection().getFlow() == TrafficFlow.EAST_WEST_LEFT);
+                || getLaneType(lane, NW) == LaneType.LEFT_TURN_LANE
+                && (getNWIntersection() == null || isNS() && getNWIntersection().getFlow() == TrafficFlow.NORTH_SOUTH_LEFT || !isNS()
+                        && getNWIntersection().getFlow() == TrafficFlow.EAST_WEST_LEFT)
+                || getLaneType(lane, NW) == LaneType.LEFT_TURN_LANE
+                && (getSEIntersection() == null || isNS() && getSEIntersection().getFlow() == TrafficFlow.NORTH_SOUTH_LEFT || !isNS()
+                        && getSEIntersection().getFlow() == TrafficFlow.EAST_WEST_LEFT);
     }
 
     public boolean isLHLane(byte lane, boolean NW) {
