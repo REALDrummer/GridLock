@@ -1,3 +1,5 @@
+package hack;
+
 import java.util.Random;
 
 public class Lighting {
@@ -6,6 +8,6 @@ public class Lighting {
     enum states {NS ,EW, NSL,EWL};
 
     Lighting(){
-        
+
     }
 }

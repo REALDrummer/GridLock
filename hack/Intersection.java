@@ -12,7 +12,7 @@ public class Intersection {
 
     private static int intersection_index1 = 0, intersection_index2 = 0;
 
-    private final LinkedList<Car> waiting = new LinkedList<>();
+    private final LinkedList<Car> waiting = new LinkedList<Car>();
     private final IntersectionType type;
     private final Point location, index;  // NOTE: this is the location of the CENTER of the intersection
     private Road north_road = null, south_road = null, east_road = null, west_road = null;
