@@ -28,9 +28,11 @@ public class GridLock extends JApplet implements ActionListener {
 
     public static Intersection currently_viewed_intersection = null;
 
+    private Timer timer = new Timer(500, this);
 
-    private Timer timer = new Timer(5,this);
-
+    public static interface Paintable {
+        void paint(Graphics g);
+    }
 
     @Override
     public void init() {
@@ -39,7 +41,6 @@ public class GridLock extends JApplet implements ActionListener {
         content = getContentPane();
         content.setFocusable(true);
         graphics = (Graphics2D) getGraphics();
-
 
         // create the Intersections
         for (int i = 0; i < GRID_WIDTH * GRID_HEIGHT; i++)
@@ -91,11 +92,11 @@ public class GridLock extends JApplet implements ActionListener {
         for (Car car : Road.CARS) {
             Point p = new Point();
             if (car.getRoad().isNS())
-                if (car.velocity() > 0)
+                if (car.getVelocityMPH() > 0)
                     p.setLocation(car.getLocation().getX(), car.getLocation().getY() + 1.0);
                 else
                     p.setLocation(car.getLocation().getX(), car.getLocation().getY() - 1.0);
-            else if (car.velocity() > 0)
+            else if (car.getVelocityMPH() > 0)
                 p.setLocation(car.getLocation().getX() - 1.0, car.getLocation().getY());
             else
                 p.setLocation(car.getLocation().getX() + 1.0, car.getLocation().getY());

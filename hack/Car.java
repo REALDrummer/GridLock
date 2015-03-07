@@ -28,8 +28,13 @@ public class Car implements Paintable {
         return location;
     }
 
-    double velocity() {
+    double getVelocityMPH() {
         return velocity;
+    }
+
+    public double getVelocityPPT() {
+        // int low = road.getNWIntersection()
+        return 0.0;
     }
 
     boolean isHalfWay() {

@@ -155,6 +155,14 @@ public class Road implements Paintable {
         return SPEED_LIMIT;
     }
 
+    public Intersection getNWIntersection() {
+        return NW_intersection;
+    }
+
+    public Intersection getSEIntersection() {
+        return SE_intersection;
+    }
+
     public byte getLanes(boolean NW) {
         if (NW)
             return (byte) (NW_left_turn_lanes + NW_right_turn_lanes + straight_lanes * 2);
