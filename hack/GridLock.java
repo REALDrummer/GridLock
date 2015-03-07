@@ -1,11 +1,13 @@
+package hack;
+
+import hack.Intersection.IntersectionType;
+
 import java.awt.Container;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 
 import javax.swing.JApplet;
-
-import static Intersection.*;
 
 public class GridLock extends JApplet {
     private static final long serialVersionUID = 1099492150132430698L;
@@ -44,6 +46,6 @@ public class GridLock extends JApplet {
 
     @Override
     public void paint(Graphics g) {
-
+        // TODO
     }
 }

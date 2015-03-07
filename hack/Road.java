@@ -1,7 +1,9 @@
+package hack;
+
 import java.awt.Point;
 import java.util.LinkedList;
 
-import Intersection.RoadDirection;
+import hack.Intersection.RoadDirection;
 
 public class Road {
     public static final Road[][] ROADS = new Road[GridLock.GRID_WIDTH * 2 + 1][GridLock.GRID_HEIGHT * 2 + 1];
@@ -26,16 +28,15 @@ public class Road {
         LEFT_LANE, STRAIGHT_LANE, RIGHT_LANE
     }
 
-    public Road(int Int1_LL, int Int1_SL, int Int1_RL, int Int2_LL, int Int2_RL) {
+    public Road(int Int1_LL, int straight_lanes, int Int1_RL, int Int2_LL, int Int2_RL) {
         this.Int1_LL = (byte) Int1_LL;
-        this.straight_lanes = (byte) Int1_SL;
+        this.straight_lanes = (byte) straight_lanes;
         this.Int1_RL = (byte) Int1_RL;
 
         this.Int2_LL = (byte) Int2_LL;
         this.Int2_RL = (byte) Int2_RL;
 
         index = new Point(road_index1, road_index2);
-		Int1_lanes = Int1_LL + Int1_SL + Int1_RL;
 
         // determine the intersections that this road is connected to
         // TODO: account for indices out of range
@@ -125,83 +126,102 @@ public class Road {
         cars.remove(car);
     }
 
-	public Lane getLaneType(byte lane, boolean NW){
-		switch(NW)
-		case NW:
-			if(isRHLane(lane, NW))
-				return RIGHT_LANE;
-			if(isLHLane(lane, NW))
-				return LEFT_LANE;
-			if(isSLane(lane, NW))
-				return STRAIGHT_LANE;
-		case !NW:
-			if(isRHLane(lane, NW))
-				return RIGHT_LANE;
-			if(isLHLane(lane, NW))
-				return LEFT_LANE;
-			if(isSLane(lane, NW))
-				return STRAIGHT_LANE;
-	}
-
-	public boolean isRHLane(byte lane, boolean NW){
-		if(NW){
-			if(Int1_RL == 1 && lane == Int1_lanes){
-				return 1;
-			}else if(Int1_RL == 2 && lane == Int1_lanes || Int1_lanes - 1){
-				return 1;
-			}else{
-				return 0;
-			}
-		}else if(!NW){
-			if(Int2_RL == 1 && lane == 0){
-				return 1;
-			}else if(Int2_RL == 2 && lane == 0 || lane == 1){
-				return 1;
-			}else{
-				return 0;
-			}
-		}else{
-			return 0;
-		}
+    public byte getNWLanes() {
+        return getLanes(true);
     }
 
-	public boolean isLHLane(byte lane, boolean NW) {
-		if(NW){
-			if(Int1_LL == 2 && lane == Int1_SL || lane == (Int1_SL + 1)){
-				return 1;
-			}else if(Int1_LL == 1 && lane == Int1_SL){
-				return 1;
-			}else{
-				return 0;
-			}
-		}else if(!NW){
-			if(Int1_LL == 2 && lane == Int1_SL || lane == (Int1_SL + 1)){
-				return 1;
-			}else if(Int1_LL == 1 && lane == Int1_SL){
-				return 1;
-			}else{
-				return 0;
-			}
-		}else{
-			return 0;
-		}
-	}
-		
-	public boolean isSLane(byte lane, boolean NW) {
-		if(NW){
-			if(lane < Int1_SL || lane == (Int1_SL + Int1_LL) && lane < (2 * Int1_SL + Int1_LL)){
-				return 1;
-			}else{
-				return 0;
-			}
-		}else if(!NW){
-			if(lane < Int1_SL || lane == (Int1_SL + Int1_LL) && lane < (2 * Int1_SL + Int1_LL)){
-				return 1;
-			}else{
-				return 0;
-			}
-		}else{
-			return 0;
-		}
+    public byte getSELanes() {
+        return getLanes(false);
+    }
+
+    public byte getLanes(boolean NW) {
+        if (NW)
+            return (byte) (Int1_LL + Int1_RL + straight_lanes * 2);
+        else
+            return (byte) (Int2_LL + Int2_RL + straight_lanes * 2);
+    }
+
+    public Lane getLaneType(byte lane, boolean NW) {
+        if (NW) {
+            if (isRHLane(lane, NW))
+                return Lane.RIGHT_LANE;
+            else if (isLHLane(lane, NW))
+                return Lane.LEFT_LANE;
+            else if (isSLane(lane, NW))
+                return Lane.STRAIGHT_LANE;
+            else
+                throw new RuntimeException("This isn't any kind of lane!");
+        } else {
+            if (isRHLane(lane, NW))
+                return Lane.RIGHT_LANE;
+            else if (isLHLane(lane, NW))
+                return Lane.LEFT_LANE;
+            else if (isSLane(lane, NW))
+                return Lane.STRAIGHT_LANE;
+            else
+                throw new RuntimeException("This isn't any kind of lane!");
+        }
+    }
+
+    public boolean isRHLane(byte lane, boolean NW) {
+        if (NW) {
+            if (Int1_RL == 1 && lane == getNWLanes()) {
+                return true;
+            } else if (Int1_RL == 2 && lane == getNWLanes() || lane == getNWLanes() - 1) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (!NW) {
+            if (Int2_RL == 1 && lane == 0) {
+                return true;
+            } else if (Int2_RL == 2 && lane == 0 || lane == 1) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isLHLane(byte lane, boolean NW) {
+        if (NW) {
+            if (Int1_LL == 2 && lane == straight_lanes || lane == (straight_lanes + 1)) {
+                return true;
+            } else if (Int1_LL == 1 && lane == straight_lanes) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (!NW) {
+            if (Int1_LL == 2 && lane == straight_lanes || lane == (straight_lanes + 1)) {
+                return true;
+            } else if (Int1_LL == 1 && lane == straight_lanes) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+
+    public boolean isSLane(byte lane, boolean NW) {
+        if (NW) {
+            if (lane < straight_lanes || lane == (straight_lanes + Int1_LL) && lane < (2 * straight_lanes + Int1_LL)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else if (!NW) {
+            if (lane < straight_lanes || lane == (straight_lanes + Int1_LL) && lane < (2 * straight_lanes + Int1_LL)) {
+                return true;
+            } else {
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 }

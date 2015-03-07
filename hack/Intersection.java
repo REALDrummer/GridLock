@@ -1,3 +1,5 @@
+package hack;
+
 import java.awt.CardLayout;
 import java.awt.Point;
 import java.util.LinkedList;
