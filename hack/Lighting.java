@@ -8,15 +8,19 @@ public class Lighting {
     private Intersection.TrafficFlow[] flow = Intersection.TrafficFlow.values();
 
     Lighting() {
+        baseCaseRandom();
+    }
+
+    private void lightingRun(){
+        setAllNS();
+    }
+
+    private void baseCaseRandom(){
         for (int i = 0; i < GridLock.GRID_WIDTH; i++) {
             for (int j = 0; j < GridLock.GRID_HEIGHT; j++) {
                 Intersection.INTERSECTIONS[i][j].setFlow(flow[rand.nextInt(flow.length)]);
             }
         }
-    }
-
-    private void lightingRun(){
-        setAllNS();
     }
 
     private void setAllNS(){
