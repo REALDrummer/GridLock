@@ -155,4 +155,8 @@ public class Intersection implements Paintable {
     public void setFlow(TrafficFlow flow) {
         this.flow = flow;
     }
+
+    public float getWidth(){return 0;}
+
+    public float getHeight(){return 0;};
 }
