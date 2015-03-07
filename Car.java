@@ -5,6 +5,7 @@ public class Car {
     private float acceleration;
     private Point location;
     private double velocity;
+    private boolean halfway;
 
     Car(float acceleration, Point location, double velocity){
         this.acceleration = acceleration;
@@ -22,5 +23,9 @@ public class Car {
 
     double velocity(){
         return velocity;
+    }
+
+    boolean isHalfWay(){
+        return halfway;
     }
 }
