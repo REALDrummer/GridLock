@@ -105,12 +105,26 @@ public class Road {
 			}else{
 				return 0;
 			}
+		}else{
+			return 0;
 		}
 	}
 
 	public boolean isSLane(byte lane, boolean NW) {
 		if(NW){
-			
+			if(lane < Int1_SL || lane == (Int1_SL + Int1_LL) && lane < (2 * Int1_SL + Int1_LL)){
+				return 1;
+			}else{
+				return 0;
+			}
+		}else if(!NW){
+			if(lane < Int1_SL || lane == (Int1_SL + Int1_LL) && lane < (2 * Int1_SL + Int1_LL)){
+				return 1;
+			}else{
+				return 0;
+			}
+		}else{
+			return 0;
 		}
 	}
 }
