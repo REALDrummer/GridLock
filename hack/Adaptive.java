@@ -6,11 +6,11 @@ public class Adaptive{
 	public final byte scars;
 	public final byte ecars;
 	public final byte wcars;
-	
 	public final byte ratio;
 	
 	public static final int STRAIGHT_DELAY = 10000;
 	public static final int LEFT_DELAY = 6000;
+	public final int next_delay;
 	
 	private Timer timer;
 	
@@ -18,7 +18,34 @@ public class Adaptive{
         NORTH_SOUTH, EAST_WEST, NORTH_SOUTH_LEFT, EAST_WEST_LEFT;
     }
 	
-	public initializeIntersections(){
+	public int Adaptive(Intersection this_intersection){
+		//returns a value to set the traffic signal cycle delay to and
+		//changes flow of intersection
+		switch(this_intersection.getFlow()){
+			case NORTH_SOUTH:
+				next_delay = LEFT_DELAY * getNSratio(this_intersection);
+				this_intersection.setFlow(TrafficFlow.NORTH_SOUTH_LEFT);
+				break;
+			case NORTH_SOUTH_LEFT:
+				next_delay = STRAIGHT_DELAY * getEWratio(this_intersection);
+				this_intersection.setFlow(TrafficFlow.EAST_WEST);
+				break;
+			case EAST_WEST:
+				next_delay = LEFT_DELAY * getEWratio(this_intersection);
+				this_intersection.setFlow(TrafficFlow.EAST_WEST_LEFT);
+				break;
+			case EAST_WEST_LEFT:
+				next_delay = STRAIGHT_DELAY * getNSratio(this_intersection);
+				this_intersection.setFlow(TrafficFlow.NORTH_SOUTH);
+				break;
+			case default:
+				System.out.println("Adaptive aint adapting");
+				break;
+		}
+		return next_delay;
+	}
+	
+	public initializeRandomIntersections(){
 		for (int i = 0; i < GridLock.GRID_WIDTH; i++){
 			for(int j = 0; j < GridLock.GRID_HEIGHT; j++){
 				//set intersections to random traffic flows
