@@ -5,7 +5,7 @@ import java.awt.Point;
 
 import javax.swing.JApplet;
 
-import Intersection.IntersectionType;
+import static Intersection.*;
 
 public class GridLock extends JApplet {
     private static final long serialVersionUID = 1099492150132430698L;
@@ -28,11 +28,11 @@ public class GridLock extends JApplet {
         graphics = (Graphics2D) getGraphics();
 
         // create the Intersections
-        for (int i = 0; i < GRID_WIDTH*GRID_HEIGHT; i++) 
+        for (int i = 0; i < GRID_WIDTH * GRID_HEIGHT; i++)
             new Intersection(IntersectionType.STOP_LIGHT);
-        
+
         // create the roads
-        for (int i = 0; i < (GRID_WIDTH*2+1)*(GRID_HEIGHT*2+1))
+        for (int i = 0; i < (GRID_WIDTH * 2 + 1) * (GRID_HEIGHT * 2 + 1); i++)
             new Road(1, 0, 0, 0, 0);
 
         setSize(800, 800);

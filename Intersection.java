@@ -13,14 +13,15 @@ public class Intersection {
     private final LinkedList<Car> waiting = new LinkedList<>();
     private final IntersectionType type;
     private final Point location, index;  // NOTE: this is the location of the CENTER of the intersection
-    private final Road north_road = null, south_road = null, east_road = null, west_road = null;
+    private Road north_road = null, south_road = null, east_road = null, west_road = null;
 
     public Intersection(IntersectionType type) {
         this.type = type;
+
+        index = new Point(intersection_index1, intersection_index2);
         location =
                 new Point((intersection_index1 + 1) * GridLock.content.getWidth() / (GridLock.GRID_WIDTH + 1), (intersection_index2 + 1) * GridLock.content.getHeight()
                         / (GridLock.GRID_HEIGHT + 1));
-        index = new Point(intersection_index1, intersection_index2);
 
         // add the new Intersection to the array of Intersections
         INTERSECTIONS[intersection_index1][intersection_index2] = this;
@@ -53,7 +54,6 @@ public class Intersection {
                     return true;
                 } else
                     return false;
-                break;
             case SOUTH:
                 if (south_road != null) {
                     south_road = road;
@@ -85,19 +85,14 @@ public class Intersection {
         return type;
     }
 
-    public double getX() {
-        return x;
-    }
-
-    public double getY() {
-        return y;
+    public Point getLocation() {
+        return location;
     }
 
     public Road getRoad(RoadDirection direction) {
         switch (direction) {
             case NORTH:
                 return north_road;
-                break;
             case SOUTH:
                 return south_road;
             case EAST:
