@@ -1,6 +1,8 @@
 import java.awt.Point;
 import java.util.LinkedList;
 
+import Intersection.RoadDirection;
+
 public class Road {
     public static final Road[][] ROADS = new Road[GridLock.GRID_WIDTH * 2 + 1][GridLock.GRID_HEIGHT * 2 + 1];
 
@@ -39,15 +41,29 @@ public class Road {
         if (isNS()) {
             if (index.y == 0)
                 Int1 = null;
-            else
+            else {
                 Int1 = Intersection.INTERSECTIONS[index.x][index.y / 2 + 1];
+                Int1.addRoad(this, RoadDirection.SOUTH);
+            }
             if (index.y == GridLock.GRID_HEIGHT * 2)
                 Int2 = null;
-            else
+            else {
                 Int2 = Intersection.INTERSECTIONS[index.x][index.y / 2];
+                Int2.addRoad(this, RoadDirection.NORTH);
+            }
         } else {
-            Int1 = Intersection.INTERSECTIONS[index.x - 1][(index.y - 1) / 2];
-            Int2 = Intersection.INTERSECTIONS[index.x][(index.y - 1) / 2];
+            if (index.x == 0)
+                Int1 = null;
+            else {
+                Int1 = Intersection.INTERSECTIONS[index.x - 1][(index.y - 1) / 2];
+                Int1.addRoad(this, RoadDirection.EAST);
+            }
+            if (index.x == GridLock.GRID_WIDTH)
+                Int2 = null;
+            else {
+                Int2 = Intersection.INTERSECTIONS[index.x][(index.y - 1) / 2];
+                Int2.addRoad(this, RoadDirection.WEST);
+            }
         }
 
         // add the new Road to the array of Roads
