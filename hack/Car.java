@@ -1,8 +1,12 @@
 package hack;
 
-import java.awt.*;
+import hack.GridLock.Paintable;
 
-public class Car {
+import java.awt.*;
+import java.util.ArrayList;
+
+public class Car implements Paintable {
+    public static final ArrayList<Car> CARS = new ArrayList<>();
 
     private float acceleration;
     private Point location;
@@ -10,39 +14,48 @@ public class Car {
     private boolean halfway;
     private Road road;
 
-    Car(float acceleration, Point location, double velocity){
+    Car(float acceleration, Point location, double velocity) {
         this.acceleration = acceleration;
         this.location = location;
         this.velocity = velocity;
     }
 
-    float getAcceleration(){
+    float getAcceleration() {
         return acceleration;
     }
 
-    Point getLocation(){
+    Point getLocation() {
         return location;
     }
 
-    double velocity(){
+    double velocity() {
         return velocity;
     }
 
-    boolean isHalfWay(){
+    boolean isHalfWay() {
         return halfway;
     }
 
-    Road getRoad(){ return road;}
+    @Override
+    public void paint(Graphics g) {
+        // represent cars using yellow circles as wide as the lanes
+        g.setColor(Color.YELLOW);
+        g.fillOval(location.x - Road.LANE_WIDTH / 2, location.y - Road.LANE_WIDTH / 2, Road.LANE_WIDTH, Road.LANE_WIDTH);
+    }
 
-    void setRoad(Road r){
+    Road getRoad() {
+        return road;
+    }
+
+    void setRoad(Road r) {
         road = r;
     }
 
-    void setLocation(Point p){
-        location.setLocation(p.getX(),p.getY());
+    void setLocation(Point p) {
+        location.setLocation(p.getX(), p.getY());
     }
 
-    void setVelocity(double v){
+    void setVelocity(double v) {
         this.velocity = v;
     }
 }

@@ -1,16 +1,20 @@
 package hack;
 
+import hack.GridLock.Paintable;
+
 import java.awt.CardLayout;
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.util.LinkedList;
 
 import javax.lang.model.type.IntersectionType;
 import javax.naming.spi.DirStateFactory.Result;
 
-public class Intersection {
+public class Intersection implements Paintable {
     public static final Intersection[][] INTERSECTIONS = new Intersection[GridLock.GRID_WIDTH][GridLock.GRID_HEIGHT];
 
-    private static int intersection_index1 = 0, intersection_index2 = 0;
+    private static int intersection_index_x = 0, intersection_index_y = 0;
 
     private final LinkedList<Car> waiting = new LinkedList<Car>();
     private final IntersectionType type;
@@ -22,20 +26,20 @@ public class Intersection {
     public Intersection(IntersectionType type) {
         this.type = type;
 
-        index = new Point(intersection_index1, intersection_index2);
+        index = new Point(intersection_index_x, intersection_index_y);
         location =
-                new Point((intersection_index1 + 1) * GridLock.content.getWidth() / (GridLock.GRID_WIDTH + 1), (intersection_index2 + 1) * GridLock.content.getHeight()
+                new Point((intersection_index_x + 1) * GridLock.WINDOW_WIDTH / (GridLock.GRID_WIDTH + 1), (intersection_index_y + 1) * GridLock.WINDOW_HEIGHT
                         / (GridLock.GRID_HEIGHT + 1));
 
         // add the new Intersection to the array of Intersections
-        INTERSECTIONS[intersection_index1][intersection_index2] = this;
+        INTERSECTIONS[intersection_index_x][intersection_index_y] = this;
 
         // increment intersection indices
-        if (intersection_index2 == GridLock.GRID_WIDTH - 1) {
-            intersection_index1++;
-            intersection_index2 = 0;
+        if (intersection_index_x == GridLock.GRID_WIDTH - 1) {
+            intersection_index_y++;
+            intersection_index_x = 0;
         } else
-            intersection_index2++;
+            intersection_index_x++;
     }
 
     public enum IntersectionType {
@@ -53,25 +57,25 @@ public class Intersection {
     boolean addRoad(Road road, RoadDirection direction) {
         switch (direction) {
             case NORTH:
-                if (north_road != null) {
+                if (north_road == null) {
                     north_road = road;
                     return true;
                 } else
                     return false;
             case SOUTH:
-                if (south_road != null) {
+                if (south_road == null) {
                     south_road = road;
                     return true;
                 } else
                     return false;
             case EAST:
-                if (east_road != null) {
+                if (east_road == null) {
                     east_road = road;
                     return true;
                 } else
                     return false;
             case WEST:
-                if (west_road != null) {
+                if (west_road == null) {
                     west_road = road;
                     return true;
                 } else
@@ -122,6 +126,26 @@ public class Intersection {
 
     public Road getWestRoad() {
         return west_road;
+    }
+
+    @Override
+    public void paint(Graphics g) {
+        // intersections are represented by dark gray squares
+        g.setColor(Color.DARK_GRAY);
+
+        // find the max values of the widths of the adjoining roads
+        int N_width = north_road.getSELanes() * Road.LANE_WIDTH, S_width = south_road.getNWLanes() * Road.LANE_WIDTH, E_width = east_road.getNWLanes() * Road.LANE_WIDTH, W_width =
+                west_road.getSELanes() * Road.LANE_WIDTH;
+        int width = N_width > S_width ? N_width : S_width, height = E_width > W_width ? E_width : W_width;
+
+        // draw the intersection
+        g.fillRect(location.x - width / 2, location.y - height / 2, width, height);
+    }
+
+    @Override
+    public String toString() {
+        return index.toString() + ":\n" + "N -> " + north_road.getIndex() + "\nS -> " + south_road.getIndex() + "\nE -> " + east_road.getIndex() + "\nW -> "
+                + west_road.getIndex();
     }
 
     public TrafficFlow getFlow(){ return flow;}
