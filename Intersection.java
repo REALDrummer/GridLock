@@ -1,19 +1,21 @@
 import java.awt.CardLayout;
+import java.awt.Point;
 import java.util.LinkedList;
 
 import javax.lang.model.type.IntersectionType;
 import javax.naming.spi.DirStateFactory.Result;
 
 public class Intersection {
+    public static final Intersection[][] INTERSECTIONS;
+    
     private final LinkedList<Car> waiting = new LinkedList<>();
     private final IntersectionType type;
-    private final double x, y;  // NOTE: this is the location of the CENTER of the intersection
+    private final Point location;  // NOTE: this is the location of the CENTER of the intersection
     private final Road north_road = null, south_road = null, east_road = null, west_road = null;
 
-    public Intersection(IntersectionType type, double x, double y) {
+    public Intersection(IntersectionType type, int x, int y) {
         this.type = type;
-        this.x = x;
-        this.y = y;
+        location = new Point(x, y);
     }
 
     public enum IntersectionType {
