@@ -69,11 +69,11 @@ public class Adaptive{
 	}
 	
 	public byte getNSratio(Intersection this_intersection){
-		return getNScars(this_intersection)/getEWcars(this_intersection);
+		return (byte)(getNScars(this_intersection) - getEWcars(this_intersection)) / 2;
 	}
 	
 	public byte getEWratio(Intersection this_intersection){
-		return getEWcars(this_intersection)/getNScars(this_intersection);
+		return (byte)(getEWcars(this_intersection) - getNScars(this_intersection)) / 2;
 	}
 	
 	public TrafficFlow randomFlow(){
