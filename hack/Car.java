@@ -9,6 +9,7 @@ import java.util.ArrayList;
 
 public class Car implements Paintable {
     public static final ArrayList<Car> CARS = new ArrayList<Car>();
+    public static final int CAR_BUFFER = 1;
     public static int CAR_SIZE = 0;
 
     // private float acceleration;
@@ -181,8 +182,8 @@ public class Car implements Paintable {
     }
 
     private boolean collidesWithCarAt(Point point) {
-        return contains(new Point(point.x + CAR_SIZE / 2, point.y)) || contains(new Point(point.x - CAR_SIZE / 2, point.y))
-                || contains(new Point(point.x, point.y + CAR_SIZE / 2)) || contains(new Point(point.x, point.y - CAR_SIZE / 2));
+        return contains(new Point(point.x + CAR_SIZE / 2 - CAR_BUFFER, point.y)) || contains(new Point(point.x - CAR_SIZE / 2 + CAR_BUFFER, point.y))
+                || contains(new Point(point.x, point.y + CAR_SIZE / 2 - CAR_BUFFER)) || contains(new Point(point.x, point.y - CAR_SIZE / 2 + CAR_BUFFER));
     }
 
     private void stop() {
@@ -196,8 +197,8 @@ public class Car implements Paintable {
             return;
 
         if (target_intersection.contains(new_point)
-                && target_intersection.hasLaneOpen(lane, getVelocityMPH() < 0 ? road.isNS() ? RoadDirection.NORTH : RoadDirection.WEST : road.isNS() ? RoadDirection.SOUTH
-                        : RoadDirection.EAST)) {
+                && !target_intersection.hasLaneOpen(lane, getVelocityMPH() < 0 ? road.isNS() ? RoadDirection.SOUTH : RoadDirection.EAST : road.isNS() ? RoadDirection.NORTH
+                        : RoadDirection.WEST)) {
             stop();
             return;
         } else

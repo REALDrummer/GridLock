@@ -17,7 +17,7 @@ public class GridLock extends JApplet implements ActionListener {
 
     public static final float SIMULATION_SPEED_MULTIPLIER = 10;
 
-    public static final int GRID_WIDTH = 3, GRID_HEIGHT = 2;
+    public static final int GRID_WIDTH = 3, GRID_HEIGHT = 3;
     public static final int WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
     public static final int PAINT_TIME = 650, ALGO_TICK_TIME = 500;
     public static final int MAX_CARS = 10;
