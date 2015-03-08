@@ -10,14 +10,13 @@ import java.util.ArrayList;
 
 public class Car implements Paintable {
     public static final ArrayList<Car> CARS = new ArrayList<Car>();
-    public static final int CAR_BUFFER = 1;
+    public static final int CAR_BUFFER = 2;
     public static int CAR_SIZE = 0;
 
     // private float acceleration;
     private Point location;
     private double velocity;
     private boolean stopped = false;
-    private boolean halfway;
     private Road road;
     private Intersection target_intersection;
     private byte lane;
@@ -27,15 +26,13 @@ public class Car implements Paintable {
         this.lane = lane;
         this.location = location;
 
-        // initialize halfway to false since we're starting from the beginning of the road
-        halfway = false;
-
         // figure out the target intersection
         target_intersection = road.getIntersection(!NW /* this NW represents the EDGE ends of the roads */);
 
         // intialize the velocity to move the car toward the target intersection
         velocity = NW ? road.getSpeedLimit() : -road.getSpeedLimit();
 
+        road.addCar(this);
         CARS.add(this);
     }
 
@@ -46,6 +43,8 @@ public class Car implements Paintable {
         byte lane = -1;
         Point location = null;
         for (int i = 0; i < GridLock.GRID_WIDTH * 2 + GridLock.GRID_HEIGHT * 2 - 4; i++) {
+            location = null;
+
             RoadDirection edge = RoadDirection.values()[(int) (Math.random() * RoadDirection.values().length)];
             road =
                     Road.ROADS[edge == RoadDirection.WEST ? 0 : edge == RoadDirection.EAST ? GridLock.GRID_WIDTH : (int) (Math.random() * (GridLock.GRID_WIDTH - 1))][edge == RoadDirection.NORTH ? 0
@@ -131,10 +130,6 @@ public class Car implements Paintable {
         return (high - low) * velocity / 3600 / (1000 / GridLock.ALGO_TICK_TIME);
     }
 
-    boolean isHalfWay() {
-        return halfway;
-    }
-
     @Override
     public void paint(Graphics g) {
         // represent cars using yellow circles as wide as the lanes
@@ -147,6 +142,18 @@ public class Car implements Paintable {
 
     Road getRoad() {
         return road;
+    }
+
+    public RoadDirection getDirection() {
+        if (road.isNS())
+            if (velocity > 0)
+                return RoadDirection.SOUTH;
+            else
+                return RoadDirection.NORTH;
+        else if (velocity > 0)
+            return RoadDirection.EAST;
+        else
+            return RoadDirection.WEST;
     }
 
     void setRoad(Road r) {
@@ -229,8 +236,6 @@ public class Car implements Paintable {
                             location.y - (new_road.getLocation().y - new_road.getNWLanes() * Road.LANE_WIDTH / 2 + new_lane * Road.LANE_WIDTH + Road.LANE_WIDTH / 2);
                 } else if (velocity > 0 && road.getSEIntersection() != null) {
                     // coming from the north
-                    // TODO TEMP
-                    System.out.println("North to south!");
                     NW_after_turn = true;
                     new_road = road.getSEIntersection().getWestRoad();
                     new_lane = (byte) 0;
@@ -253,10 +258,6 @@ public class Car implements Paintable {
         }
 
         if (new_road != null && distance_until_turn <= 0) {
-            // TODO TEMP
-            if (current_lane_type == LaneType.RIGHT_TURN_LANE && !new_road.isNS() && !NW_after_turn)
-                System.out.println("Making " + (current_lane_type == LaneType.LEFT_TURN_LANE ? "left" : "right") + " turn! trans dis=" + (-distance_until_turn)
-                        + "; new lane=" + new_lane + "; new road=" + new_road);
             // make the turn!
             // if the car passed the turn lane, translate the extra distance into movement in the new lane
             int translation_distance = -distance_until_turn;
@@ -280,6 +281,8 @@ public class Car implements Paintable {
                 new_location.y += current_lane_type == LaneType.LEFT_TURN_LANE ? -translation_distance : translation_distance;
             }
 
+            road.getCars().remove(this);
+            new_road.getCars().add(this);
             road = new_road;
             lane = new_lane;
             velocity = NW_after_turn ? -road.getSpeedLimit() : road.getSpeedLimit();
@@ -302,29 +305,43 @@ public class Car implements Paintable {
     private void stop() {
         target_intersection.getNorthWaitingCars().add(this);  // the list of waiting cars is actually a SET; no need to check if it was already waiting!
         stopped = true;
+
+        // add this car to the list of waiting cars for the target intersection
+        getDirection().getOpposite().getWaitingCars(target_intersection).add(this);
+        // TODO TEMP
+        System.out.println("+1 = " + getDirection().getOpposite().getWaitingCars(target_intersection).size() + " waiting at " + getDirection().getOpposite().toString()
+                + target_intersection);
     }
 
     public void tick() {
-        Point new_point = move();
-        if (new_point.equals(location))
+        Point new_location = move();
+        Point new_nose_location =
+                new Point(new_location.x + (getDirection() == RoadDirection.WEST ? -CAR_SIZE / 2 : getDirection() == RoadDirection.EAST ? CAR_SIZE / 2 : 0), new_location.y
+                        + (getDirection() == RoadDirection.NORTH ? -CAR_SIZE / 2 : getDirection() == RoadDirection.SOUTH ? CAR_SIZE / 2 : 0));
+
+        if (new_location.equals(location))
             return;
 
-        if (target_intersection.contains(new_point)
-                && !target_intersection.hasLaneOpen(lane, getVelocityMPH() < 0 ? road.isNS() ? RoadDirection.SOUTH : RoadDirection.EAST : road.isNS() ? RoadDirection.NORTH
-                        : RoadDirection.WEST) && !target_intersection.contains(location)) {
-            stop();
-            return;
-        } else if (!target_intersection.contains(location))
-            for (Car car : CARS)
-                if (car != this && !target_intersection.contains(car.getLocation()) && car.collidesWithCarAt(new_point)) {
-                    stop();
-                    return;
-                }
+        if (!target_intersection.contains(location))
+            if (target_intersection.contains(new_nose_location)
+                    && !target_intersection.hasLaneOpen(lane, getVelocityMPH() < 0 ? road.isNS() ? RoadDirection.SOUTH : RoadDirection.EAST
+                            : road.isNS() ? RoadDirection.NORTH : RoadDirection.WEST)) {
+                stop();
+                return;
+            } else
+                for (Car car : road.getCars())
+                    if (car != this && lane == car.getLane() && !target_intersection.contains(car.getLocation()) && car.collidesWithCarAt(new_location)) {
+                        stop();
+                        return;
+                    }
 
         if (location.x < 0 || location.y < 0 || location.x > GridLock.WINDOW_WIDTH || location.y > GridLock.WINDOW_HEIGHT)
             delete();
-        else
-            location = new_point;
+        else {
+            location = new_location;
+            // remove this car from the list of waiting cars for the target intersection
+            getDirection().getOpposite().getWaitingCars(target_intersection).remove(this);
+        }
     }
 
     @Override

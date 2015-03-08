@@ -6,6 +6,8 @@ import java.util.Random;
 
 public class Lighting implements Runnable {
 
+    private static final int CHANGE_TIME = 200;
+
     private Random rand = new Random();
 
     private int tick_counter = 0;
@@ -17,7 +19,7 @@ public class Lighting implements Runnable {
     public void run() {
         tick_counter++;
 
-        if (tick_counter == 50) {
+        if (tick_counter == CHANGE_TIME) {
             baseCaseRandom();
             tick_counter = 0;
         }

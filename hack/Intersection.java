@@ -25,7 +25,7 @@ public class Intersection implements Paintable {
     private Road north_road = null, south_road = null, east_road = null, west_road = null;
     private int width = 0, height = 0;  // initialize to 0 until it can be calculated based on connecting roads later on
 
-    private TrafficFlow flow = /* TODO TEMP RPLC TrafficFlow.NORTH_SOUTH */TrafficFlow.EAST_WEST_LEFT;
+    private TrafficFlow flow = TrafficFlow.NORTH_SOUTH;
 
     public Intersection(IntersectionType type) {
         this.type = type;
@@ -56,6 +56,21 @@ public class Intersection implements Paintable {
 
     public enum RoadDirection {
         NORTH, SOUTH, EAST, WEST;
+
+        public RoadDirection getOpposite() {
+            switch (this) {
+                case NORTH:
+                    return SOUTH;
+                case SOUTH:
+                    return NORTH;
+                case EAST:
+                    return WEST;
+                case WEST:
+                    return EAST;
+                default:
+                    throw new RuntimeException("What direction is this?!");
+            }
+        }
 
         public Road getRoad(Intersection intersection) {
             switch (this) {

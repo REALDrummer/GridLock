@@ -9,13 +9,14 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 
 import javax.swing.*;
 
 public class GridLock extends JApplet implements ActionListener {
     private static final long serialVersionUID = 1099492150132430698L;
 
-    public static final float SIMULATION_SPEED_MULTIPLIER = 8;
+    public static final float SIMULATION_SPEED_MULTIPLIER = 2;
 
     public static final int GRID_WIDTH = 3, GRID_HEIGHT = 3;
     public static final int WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
@@ -46,7 +47,8 @@ public class GridLock extends JApplet implements ActionListener {
         applet = this;
         content = getContentPane();
         content.setFocusable(true);
-        graphics = (Graphics2D) getGraphics();
+        content.add(new JPanel());
+        graphics = (Graphics2D) content.getComponent(0).getGraphics();
 
         // create the Intersections
         for (int i = 0; i < GRID_WIDTH * GRID_HEIGHT; i++)
