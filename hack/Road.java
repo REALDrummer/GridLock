@@ -140,7 +140,11 @@ public class Road implements Paintable {
     public void removeCar(Car car) {
         cars.remove(car);
     }
-
+    
+    public int numCars(){
+    	return cars.size();
+    }
+    
     public Point getIndex() {
         return index;
     }

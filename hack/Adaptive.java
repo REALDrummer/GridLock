@@ -15,32 +15,39 @@ public class Adaptive {
     public static final int LEFT_DELAY = 6000;
     public int next_delay = 0;
 
-    private Timer timer;
+	public int getNextDelay(Intersection this_intersection){
+		switch(this_intersection.getFlow()){
+			case NORTH_SOUTH:
+				return LEFT_DELAY * getNSratio(this_intersection);
+			case NORTH_SOUTH_LEFT:
+				return STRAIGHT_DELAY * getEWratio(this_intersection);
+			case EAST_WEST:
+				return LEFT_DELAY * getEWratio(this_intersection);
+			case EAST_WEST_LEFT:
+				return STRAIGHT_DELAY * getNSratio(this_intersection);
+			default:
+				System.out.println("Adaptive aint adapting [getnextdelay]");
+				return 0;
+		}
+	}
 
-    public int runLighting(Intersection this_intersection) {
-        // returns a value to set the traffic signal cycle delay to and
-        // changes flow of intersection
+	public void setNextFlow(Intersection this_intersection){
         switch (this_intersection.getFlow()) {
             case NORTH_SOUTH:
                 next_delay = LEFT_DELAY * getNSratio(this_intersection);
-                this_intersection.setFlow(Intersection.TrafficFlow.NORTH_SOUTH_LEFT);
                 break;
             case NORTH_SOUTH_LEFT:
                 next_delay = STRAIGHT_DELAY * getEWratio(this_intersection);
-                this_intersection.setFlow(Intersection.TrafficFlow.EAST_WEST);
                 break;
             case EAST_WEST:
                 next_delay = LEFT_DELAY * getEWratio(this_intersection);
-                this_intersection.setFlow(Intersection.TrafficFlow.EAST_WEST_LEFT);
                 break;
             case EAST_WEST_LEFT:
                 next_delay = STRAIGHT_DELAY * getNSratio(this_intersection);
-                this_intersection.setFlow(Intersection.TrafficFlow.NORTH_SOUTH);
             default:
-                System.out.println("Adaptive aint adapting");
+				System.out.println("Adaptive aint adapting [setnextflow]");
                 break;
         }
-        return next_delay;
     }
 
     public void initializeRandomIntersections() {
