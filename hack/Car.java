@@ -308,9 +308,6 @@ public class Car implements Paintable {
 
         // add this car to the list of waiting cars for the target intersection
         getDirection().getOpposite().getWaitingCars(target_intersection).add(this);
-        // TODO TEMP
-        System.out.println("+1 = " + getDirection().getOpposite().getWaitingCars(target_intersection).size() + " waiting at " + getDirection().getOpposite().toString()
-                + target_intersection);
     }
 
     public void tick() {

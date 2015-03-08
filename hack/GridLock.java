@@ -2,6 +2,7 @@ package hack;
 
 import hack.Intersection.IntersectionType;
 
+import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Container;
 import java.awt.Graphics;
@@ -9,12 +10,16 @@ import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.awt.image.BufferedImage;
 
 import javax.swing.*;
 
-public class GridLock extends JApplet implements ActionListener {
+public class GridLock extends Canvas implements ActionListener {
     private static final long serialVersionUID = 1099492150132430698L;
+
+    public static GridLock GRIDLOCK;
 
     public static final float SIMULATION_SPEED_MULTIPLIER = 2;
 
@@ -26,29 +31,17 @@ public class GridLock extends JApplet implements ActionListener {
 
     public static final Runnable algorithm = new Lighting();
 
-    public static GridLock applet;
-    public static Container content;
-    public static Graphics2D graphics;
-
-    public static Point mouse_location, last_mouse_location;
-
-    public static Intersection currently_viewed_intersection = null;
-
     public static final AlgoRunner algo_runner = new AlgoRunner();
-    private Timer paint_timer = new Timer(PAINT_TIME, this), run_timer = new Timer((int) (ALGO_TICK_TIME / SIMULATION_SPEED_MULTIPLIER), algo_runner);
+    public Timer paint_timer = new Timer(PAINT_TIME, this), run_timer = new Timer((int) (ALGO_TICK_TIME / SIMULATION_SPEED_MULTIPLIER), algo_runner);
 
     public static interface Paintable {
         void paint(Graphics g);
     }
 
-    @Override
-    public void init() {
+    public static void main(String[] args) {
         // initialize basic stuff
-        applet = this;
-        content = getContentPane();
-        content.setFocusable(true);
-        content.add(new JPanel());
-        graphics = (Graphics2D) content.getComponent(0).getGraphics();
+        JFrame window = new JFrame("Gridlock");
+        window.add(GRIDLOCK = new GridLock());
 
         // create the Intersections
         for (int i = 0; i < GRID_WIDTH * GRID_HEIGHT; i++)
@@ -71,13 +64,49 @@ public class GridLock extends JApplet implements ActionListener {
             for (Intersection intersection : intersections)
                 intersection.calcWidthAndHeight();
 
-        setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        GRIDLOCK.setSize(WINDOW_WIDTH, WINDOW_HEIGHT);
+        window.pack();
+        window.addWindowListener(new WindowListener() {
 
-        mouse_location = applet.getMousePosition();
-        last_mouse_location = null;
-        setContentPane(content);
-        paint_timer.start();
-        run_timer.start();
+            @Override
+            public void windowOpened(WindowEvent e) {
+                //
+            }
+
+            @Override
+            public void windowIconified(WindowEvent e) {
+                //
+            }
+
+            @Override
+            public void windowDeiconified(WindowEvent e) {
+                //
+            }
+
+            @Override
+            public void windowDeactivated(WindowEvent e) {
+                //
+            }
+
+            @Override
+            public void windowClosing(WindowEvent e) {
+                //
+            }
+
+            @Override
+            public void windowClosed(WindowEvent e) {
+                System.exit(0);
+            }
+
+            @Override
+            public void windowActivated(WindowEvent e) {
+                //
+            }
+        });
+        window.setVisible(true);
+
+        GRIDLOCK.paint_timer.start();
+        GRIDLOCK.run_timer.start();
     }
 
     @Override
