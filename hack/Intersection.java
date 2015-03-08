@@ -25,7 +25,7 @@ public class Intersection implements Paintable {
     private Road north_road = null, south_road = null, east_road = null, west_road = null;
     private int width = 0, height = 0;  // initialize to 0 until it can be calculated based on connecting roads later on
 
-    private TrafficFlow flow = TrafficFlow.NORTH_SOUTH;
+    private TrafficFlow flow = /* TODO TEMP RPLC TrafficFlow.NORTH_SOUTH */TrafficFlow.EAST_WEST_LEFT;
 
     public Intersection(IntersectionType type) {
         this.type = type;
@@ -202,6 +202,27 @@ public class Intersection implements Paintable {
 
         // draw the intersection
         g.fillRect(location.x - width / 2, location.y - height / 2, width, height);
+
+        // draw indicators for the flow of traffic
+        g.setColor(Color.GREEN);
+        final int ARC_WIDTH = getWidth() * 2 / 3, ARC_HEIGHT = getHeight() * 2 / 3;
+        switch (flow) {
+            case EAST_WEST:
+                g.fillRect(location.x - getWidth() / 2, location.y - getHeight() / 3, getWidth(), getHeight() * 2 / 3);
+                break;
+            case NORTH_SOUTH:
+                g.fillRect(location.x - getWidth() / 3, location.y - getHeight() / 2, getWidth() * 2 / 3, getHeight());
+                break;
+            case EAST_WEST_LEFT:
+                g.fillArc(location.x + getWidth() / 2 - ARC_WIDTH, location.y + getHeight() / 2 - ARC_HEIGHT, 2 * ARC_WIDTH, 2 * ARC_HEIGHT, 90, 90);
+                g.fillArc(location.x - getWidth() / 2 - ARC_WIDTH, location.y - getHeight() / 2 - ARC_HEIGHT, 2 * ARC_WIDTH, 2 * ARC_HEIGHT, 270, 90);
+                break;
+            case NORTH_SOUTH_LEFT:
+                g.fillArc(location.x + getWidth() / 2 - ARC_WIDTH, location.y - getHeight() / 2 - ARC_HEIGHT, 2 * ARC_WIDTH, 2 * ARC_HEIGHT, 180, 90);
+                g.fillArc(location.x - getWidth() / 2 - ARC_WIDTH, location.y + getHeight() / 2 - ARC_HEIGHT, 2 * ARC_WIDTH, 2 * ARC_HEIGHT, 0, 90);
+            default:
+                break;
+        }
     }
 
     @Override

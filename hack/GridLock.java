@@ -15,13 +15,15 @@ import javax.swing.*;
 public class GridLock extends JApplet implements ActionListener {
     private static final long serialVersionUID = 1099492150132430698L;
 
-    public static final float SIMULATION_SPEED_MULTIPLIER = 2;
+    public static final float SIMULATION_SPEED_MULTIPLIER = 8;
 
     public static final int GRID_WIDTH = 3, GRID_HEIGHT = 3;
     public static final int WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;
     public static final int PAINT_TIME = 650, ALGO_TICK_TIME = 500;
     public static final int MAX_CARS = 10;
     public static final double CARS_SPAWNED_PER_SECOND = 1, CARS_PER_SECOND_VARIANCE = 0.5;
+
+    public static final Runnable algorithm = new Lighting();
 
     public static GridLock applet;
     public static Container content;

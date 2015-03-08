@@ -180,6 +180,26 @@ public class Road implements Paintable {
             return (byte) (SE_left_turn_lanes + SE_right_turn_lanes + straight_lanes * 2);
     }
 
+    public byte getNWLeftTurnLanes() {
+        return NW_left_turn_lanes;
+    }
+
+    public byte getNWRightTurnLanes() {
+        return NW_right_turn_lanes;
+    }
+
+    public byte getStraightLanes() {
+        return straight_lanes;
+    }
+
+    public byte getSELeftTurnLanes() {
+        return SE_left_turn_lanes;
+    }
+
+    public byte getSERightTurnLanes() {
+        return SE_right_turn_lanes;
+    }
+
     public LaneType getLaneType(byte lane, boolean NW) {
         if (isRHLane(lane, NW))
             return LaneType.RIGHT_TURN_LANE;
@@ -190,7 +210,7 @@ public class Road implements Paintable {
         else if (isSELane(lane, NW))
             return LaneType.SE_STRAIGHT_LANE;
         else
-            throw new RuntimeException("This isn't any kind of lane!");
+            throw new RuntimeException("This isn't any kind of lane!\n" + index + " lane " + lane + "'s " + (NW ? "NW" : "SE") + " lanes");
     }
 
     public boolean hasLaneOpen(byte lane, boolean NW) {
@@ -255,7 +275,11 @@ public class Road implements Paintable {
         else if (!NW && isNS())
             return lane >= SE_right_turn_lanes && lane < SE_right_turn_lanes + straight_lanes;
         else
-            return lane >= SE_right_turn_lanes + straight_lanes + SE_left_turn_lanes;
+            return lane >= straight_lanes + SE_left_turn_lanes && lane < straight_lanes * 2 + SE_left_turn_lanes;
+    }
+
+    public int numCars() {
+        return cars.size();
     }
 
     @Override

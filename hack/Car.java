@@ -5,6 +5,7 @@ import hack.Intersection.RoadDirection;
 import hack.Road.LaneType;
 
 import java.awt.*;
+import java.security.AlgorithmConstraints;
 import java.util.ArrayList;
 
 public class Car implements Paintable {
@@ -25,11 +26,6 @@ public class Car implements Paintable {
         this.road = road;
         this.lane = lane;
         this.location = location;
-
-        // TODO TEMP
-        System.out.println(location + "::");
-        for (Car car : CARS)
-            System.out.println(car.getLocation());
 
         // initialize halfway to false since we're starting from the beginning of the road
         halfway = false;
@@ -178,35 +174,129 @@ public class Car implements Paintable {
         stopped = false;
         target_intersection.getNorthWaitingCars().remove(this);
 
-        Point p = new Point();
+        Point new_location = new Point();
         if (getRoad().isNS())
-            p.setLocation(getLocation().getX(), getLocation().getY() + getVelocityPPT());
+            new_location.setLocation(getLocation().getX(), getLocation().getY() + getVelocityPPT());
         else
-            p.setLocation(getLocation().getX() + getVelocityPPT(), getLocation().getY());
+            new_location.setLocation(getLocation().getX() + getVelocityPPT(), getLocation().getY());
 
         // handle turns
         LaneType current_lane_type = road.getLaneType(lane, road.isNS() && location.y >= road.getLocation().y || !road.isNS() && location.x < road.getLocation().x);
-        Road new_road;
-        byte new_lane;
+        Road new_road = null;
+        byte new_lane = -1;
+        int distance_until_turn = 0;
+        boolean NW_after_turn = false;
         if (current_lane_type == LaneType.LEFT_TURN_LANE) {
-            if (road.isNS())
+            // choose the destination road and the innermost lane on that road leading away from the target intersection
+            if (road.isNS()) {
                 if (velocity < 0 && road.getNWIntersection() != null) {
                     // coming from the south
-                    road = road.getNWIntersection().getWestRoad();
-                    // new_lane = (byte) () TODO
-                } else {
-                    // TODO
+                    NW_after_turn = true;
+                    new_road = road.getNWIntersection().getWestRoad();
+                    new_lane = (byte) (new_road.getStraightLanes() - 1);
+                    distance_until_turn =
+                            location.y - (new_road.getLocation().y - new_road.getSELanes() * Road.LANE_WIDTH / 2 + new_lane * Road.LANE_WIDTH + Road.LANE_WIDTH / 2);
+                } else if (velocity > 0 && road.getSEIntersection() != null) {
+                    // coming from the north
+                    NW_after_turn = false;
+                    new_road = road.getSEIntersection().getEastRoad();
+                    new_lane = (byte) (new_road.getStraightLanes() + new_road.getNWLeftTurnLanes() + new_road.getNWRightTurnLanes());
+                    distance_until_turn =
+                            (new_road.getLocation().y - new_road.getSELanes() * Road.LANE_WIDTH / 2 + new_lane * Road.LANE_WIDTH + Road.LANE_WIDTH / 2) - location.y;
                 }
+            } else if (velocity < 0 && road.getNWIntersection() != null) {
+                // coming from the east
+                NW_after_turn = false;
+                new_road = road.getNWIntersection().getSouthRoad();
+                new_lane = (byte) (new_road.getStraightLanes() - 1);
+                distance_until_turn = location.x - (new_road.getLocation().x - new_road.getNWLanes() * Road.LANE_WIDTH / 2 + new_lane * Road.LANE_WIDTH + Road.LANE_WIDTH / 2);
+            } else if (velocity > 0 && road.getSEIntersection() != null) {
+                // coming from the west
+                NW_after_turn = true;
+                new_road = road.getSEIntersection().getNorthRoad();
+                new_lane = (byte) (new_road.getStraightLanes() + new_road.getSELeftTurnLanes() + new_road.getSERightTurnLanes());
+                distance_until_turn = (new_road.getLocation().x - new_road.getNWLanes() * Road.LANE_WIDTH + new_lane * Road.LANE_WIDTH + Road.LANE_WIDTH / 2) - location.x;
+            }
         } else if (current_lane_type == LaneType.RIGHT_TURN_LANE) {
-            // TODO
+            // choose the destination road and the innermost lane on that road leading away from the target intersection
+            if (road.isNS()) {
+                if (velocity < 0 && road.getNWIntersection() != null) {
+                    // coming from the south
+                    NW_after_turn = false;
+                    new_road = road.getNWIntersection().getEastRoad();
+                    new_lane = (byte) (new_road.getNWLanes() - 1);
+                    distance_until_turn =
+                            location.y - (new_road.getLocation().y - new_road.getNWLanes() * Road.LANE_WIDTH / 2 + new_lane * Road.LANE_WIDTH + Road.LANE_WIDTH / 2);
+                } else if (velocity > 0 && road.getSEIntersection() != null) {
+                    // coming from the north
+                    // TODO TEMP
+                    System.out.println("North to south!");
+                    NW_after_turn = true;
+                    new_road = road.getSEIntersection().getWestRoad();
+                    new_lane = (byte) 0;
+                    distance_until_turn =
+                            (new_road.getLocation().y - new_road.getSELanes() * Road.LANE_WIDTH / 2 + new_lane * Road.LANE_WIDTH + Road.LANE_WIDTH / 2) - location.y;
+                }
+            } else if (velocity < 0 && road.getNWIntersection() != null) {
+                // coming from the east
+                NW_after_turn = true;
+                new_road = road.getNWIntersection().getNorthRoad();
+                new_lane = (byte) (new_road.getNWLanes() - 1);
+                distance_until_turn = location.x - (new_road.getLocation().x - new_road.getNWLanes() * Road.LANE_WIDTH / 2 + new_lane * Road.LANE_WIDTH + Road.LANE_WIDTH / 2);
+            } else if (velocity > 0 && road.getSEIntersection() != null) {
+                // coming from the west
+                NW_after_turn = false;
+                new_road = road.getSEIntersection().getSouthRoad();
+                new_lane = (byte) 0;
+                distance_until_turn = (new_road.getLocation().x - new_road.getSELanes() * Road.LANE_WIDTH / 2 + new_lane * Road.LANE_WIDTH + Road.LANE_WIDTH / 2) - location.x;
+            }
         }
 
-        return p;
+        if (new_road != null && distance_until_turn <= 0) {
+            // TODO TEMP
+            if (current_lane_type == LaneType.RIGHT_TURN_LANE && !new_road.isNS() && !NW_after_turn)
+                System.out.println("Making " + (current_lane_type == LaneType.LEFT_TURN_LANE ? "left" : "right") + " turn! trans dis=" + (-distance_until_turn)
+                        + "; new lane=" + new_lane + "; new road=" + new_road);
+            // make the turn!
+            // if the car passed the turn lane, translate the extra distance into movement in the new lane
+            int translation_distance = -distance_until_turn;
+            if (road.isNS())
+                if (velocity < 0) {
+                    // moving north
+                    new_location.y -= translation_distance;
+                    new_location.x += current_lane_type == LaneType.LEFT_TURN_LANE ? -translation_distance : translation_distance;
+                } else {
+                    // moving south
+                    new_location.y -= -translation_distance;
+                    new_location.x += current_lane_type == LaneType.LEFT_TURN_LANE ? translation_distance : -translation_distance;
+                }
+            else if (velocity < 0) {
+                // moving west
+                new_location.x -= -translation_distance;
+                new_location.y += current_lane_type == LaneType.LEFT_TURN_LANE ? translation_distance : -translation_distance;
+            } else {
+                // moving east
+                new_location.x -= translation_distance;
+                new_location.y += current_lane_type == LaneType.LEFT_TURN_LANE ? -translation_distance : translation_distance;
+            }
+
+            road = new_road;
+            lane = new_lane;
+            velocity = NW_after_turn ? -road.getSpeedLimit() : road.getSpeedLimit();
+        }
+
+        return new_location;
     }
 
     private boolean collidesWithCarAt(Point point) {
         return contains(new Point(point.x + CAR_SIZE / 2 - CAR_BUFFER, point.y)) || contains(new Point(point.x - CAR_SIZE / 2 + CAR_BUFFER, point.y))
                 || contains(new Point(point.x, point.y + CAR_SIZE / 2 - CAR_BUFFER)) || contains(new Point(point.x, point.y - CAR_SIZE / 2 + CAR_BUFFER));
+    }
+
+    private void delete() {
+        road.getCars().remove(this);
+
+        CARS.remove(this);
     }
 
     private void stop() {
@@ -221,17 +311,20 @@ public class Car implements Paintable {
 
         if (target_intersection.contains(new_point)
                 && !target_intersection.hasLaneOpen(lane, getVelocityMPH() < 0 ? road.isNS() ? RoadDirection.SOUTH : RoadDirection.EAST : road.isNS() ? RoadDirection.NORTH
-                        : RoadDirection.WEST)) {
+                        : RoadDirection.WEST) && !target_intersection.contains(location)) {
             stop();
             return;
-        } else
+        } else if (!target_intersection.contains(location))
             for (Car car : CARS)
-                if (car != this && car.collidesWithCarAt(new_point)) {
+                if (car != this && !target_intersection.contains(car.getLocation()) && car.collidesWithCarAt(new_point)) {
                     stop();
                     return;
                 }
 
-        location = new_point;
+        if (location.x < 0 || location.y < 0 || location.x > GridLock.WINDOW_WIDTH || location.y > GridLock.WINDOW_HEIGHT)
+            delete();
+        else
+            location = new_point;
     }
 
     @Override

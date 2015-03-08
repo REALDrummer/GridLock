@@ -4,23 +4,29 @@ import hack.Intersection.TrafficFlow;
 
 import java.util.Random;
 
-public class Lighting {
+public class Lighting implements Runnable {
 
     private Random rand = new Random();
-    private TrafficFlow[] flow = TrafficFlow.values();
+
+    private int tick_counter = 0;
 
     Lighting() {
-        baseCaseRandom();
+
     }
 
-    private void lightingRun() {
-        setAllNS();
+    public void run() {
+        tick_counter++;
+
+        if (tick_counter == 50) {
+            baseCaseRandom();
+            tick_counter = 0;
+        }
     }
 
     private void baseCaseRandom() {
         for (int i = 0; i < GridLock.GRID_WIDTH; i++) {
             for (int j = 0; j < GridLock.GRID_HEIGHT; j++) {
-                Intersection.INTERSECTIONS[i][j].setFlow(flow[rand.nextInt(flow.length)]);
+                Intersection.INTERSECTIONS[i][j].setFlow(TrafficFlow.values()[rand.nextInt(TrafficFlow.values().length)]);
             }
         }
     }
