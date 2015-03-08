@@ -15,7 +15,7 @@ import javax.swing.*;
 public class GridLock extends JApplet implements ActionListener {
     private static final long serialVersionUID = 1099492150132430698L;
 
-    public static final float SIMULATION_SPEED_MULTIPLIER = 10;
+    public static final float SIMULATION_SPEED_MULTIPLIER = 2;
 
     public static final int GRID_WIDTH = 3, GRID_HEIGHT = 3;
     public static final int WINDOW_WIDTH = 800, WINDOW_HEIGHT = 800;

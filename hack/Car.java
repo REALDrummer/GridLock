@@ -26,6 +26,11 @@ public class Car implements Paintable {
         this.lane = lane;
         this.location = location;
 
+        // TODO TEMP
+        System.out.println(location + "::");
+        for (Car car : CARS)
+            System.out.println(car.getLocation());
+
         // initialize halfway to false since we're starting from the beginning of the road
         halfway = false;
 
@@ -68,7 +73,7 @@ public class Car implements Paintable {
                             - road.getLanes(NW) * Road.LANE_WIDTH / 2 + lane * Road.LANE_WIDTH + Road.LANE_WIDTH / 2);
 
             // determine whether or not this car collides with another car
-            for (Car car : CARS)
+            for (Car car : road.getCars())
                 if (car.collidesWithCarAt(location)) {
                     collides_with_other_car = true;
                     break;
@@ -171,13 +176,31 @@ public class Car implements Paintable {
     private Point move() {
         // "unstop" the car
         stopped = false;
-        target_intersection.getWaitingCars().remove(this);
+        target_intersection.getNorthWaitingCars().remove(this);
 
         Point p = new Point();
         if (getRoad().isNS())
             p.setLocation(getLocation().getX(), getLocation().getY() + getVelocityPPT());
         else
             p.setLocation(getLocation().getX() + getVelocityPPT(), getLocation().getY());
+
+        // handle turns
+        LaneType current_lane_type = road.getLaneType(lane, road.isNS() && location.y >= road.getLocation().y || !road.isNS() && location.x < road.getLocation().x);
+        Road new_road;
+        byte new_lane;
+        if (current_lane_type == LaneType.LEFT_TURN_LANE) {
+            if (road.isNS())
+                if (velocity < 0 && road.getNWIntersection() != null) {
+                    // coming from the south
+                    road = road.getNWIntersection().getWestRoad();
+                    // new_lane = (byte) () TODO
+                } else {
+                    // TODO
+                }
+        } else if (current_lane_type == LaneType.RIGHT_TURN_LANE) {
+            // TODO
+        }
+
         return p;
     }
 
@@ -187,7 +210,7 @@ public class Car implements Paintable {
     }
 
     private void stop() {
-        target_intersection.getWaitingCars().add(this);  // the list of waiting cars is actually a SET; no need to check if it was already waiting!
+        target_intersection.getNorthWaitingCars().add(this);  // the list of waiting cars is actually a SET; no need to check if it was already waiting!
         stopped = true;
     }
 
@@ -209,5 +232,10 @@ public class Car implements Paintable {
                 }
 
         location = new_point;
+    }
+
+    @Override
+    public String toString() {
+        return location.toString();
     }
 }

@@ -1,21 +1,23 @@
 package hack;
 
+import hack.Intersection.TrafficFlow;
+
 import java.util.Random;
 
 public class Lighting {
 
     private Random rand = new Random();
-    private Intersection.TrafficFlow[] flow = Intersection.TrafficFlow.values();
+    private TrafficFlow[] flow = TrafficFlow.values();
 
     Lighting() {
         baseCaseRandom();
     }
 
-    private void lightingRun(){
+    private void lightingRun() {
         setAllNS();
     }
 
-    private void baseCaseRandom(){
+    private void baseCaseRandom() {
         for (int i = 0; i < GridLock.GRID_WIDTH; i++) {
             for (int j = 0; j < GridLock.GRID_HEIGHT; j++) {
                 Intersection.INTERSECTIONS[i][j].setFlow(flow[rand.nextInt(flow.length)]);
@@ -23,18 +25,18 @@ public class Lighting {
         }
     }
 
-    private void setAllNS(){
+    private void setAllNS() {
         for (int i = 0; i < GridLock.GRID_WIDTH; i++) {
             for (int j = 0; j < GridLock.GRID_HEIGHT; j++) {
-                Intersection.INTERSECTIONS[i][j].setFlow(Intersection.TrafficFlow.NORTH_SOUTH);
+                Intersection.INTERSECTIONS[i][j].setFlow(TrafficFlow.NORTH_SOUTH);
             }
         }
     }
 
-    private void setALLEW(){
+    private void setALLEW() {
         for (int i = 0; i < GridLock.GRID_WIDTH; i++) {
             for (int j = 0; j < GridLock.GRID_HEIGHT; j++) {
-                Intersection.INTERSECTIONS[i][j].setFlow(Intersection.TrafficFlow.EAST_WEST);
+                Intersection.INTERSECTIONS[i][j].setFlow(TrafficFlow.EAST_WEST);
             }
         }
     }

@@ -2,6 +2,7 @@ package hack;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.List;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -132,6 +133,10 @@ public class Road implements Paintable {
         cars.add(car);
     }
 
+    public LinkedList<Car> getCars() {
+        return cars;
+    }
+
     public void removeCar(Car car) {
         cars.remove(car);
     }
@@ -189,27 +194,6 @@ public class Road implements Paintable {
     }
 
     public boolean hasLaneOpen(byte lane, boolean NW) {
-        // TODO EXT TEMP
-        if (NW && lane == 2 && index.x == 3) {
-            System.out.println(this + ":");
-            System.out.println("lane=" + lane + "; NW=" + NW);
-            System.out.println("1=" + (getLaneType(lane, NW) == LaneType.RIGHT_TURN_LANE));
-            System.out.println("2="
-                    + (getLaneType(lane, NW) == LaneType.NW_STRAIGHT_LANE && (getNWIntersection() == null || isNS()
-                            && getNWIntersection().getFlow() == TrafficFlow.NORTH_SOUTH || !isNS() && getNWIntersection().getFlow() == TrafficFlow.EAST_WEST)));
-            System.out.println("3="
-                    + (getLaneType(lane, NW) == LaneType.SE_STRAIGHT_LANE && (getSEIntersection() == null || isNS()
-                            && getSEIntersection().getFlow() == TrafficFlow.NORTH_SOUTH || !isNS() && getSEIntersection().getFlow() == TrafficFlow.EAST_WEST)));
-            System.out.println("4="
-                    + (getLaneType(lane, NW) == LaneType.LEFT_TURN_LANE && NW && (getNWIntersection() == null || isNS()
-                            && getNWIntersection().getFlow() == TrafficFlow.NORTH_SOUTH_LEFT || !isNS() && getNWIntersection().getFlow() == TrafficFlow.EAST_WEST_LEFT)));
-            System.out.println("5="
-                    + (getLaneType(lane, NW) == LaneType.LEFT_TURN_LANE && !NW && (getSEIntersection() == null || isNS()
-                            && getSEIntersection().getFlow() == TrafficFlow.NORTH_SOUTH_LEFT || !isNS() && getSEIntersection().getFlow() == TrafficFlow.EAST_WEST_LEFT)));
-        }
-
-        // TODO END TEMP
-
         return // right turns can always go (if they're clear)
         getLaneType(lane, NW) == LaneType.RIGHT_TURN_LANE
                 // straights can go if they have a green light

@@ -6,6 +6,7 @@ import java.awt.CardLayout;
 import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Point;
+import java.lang.annotation.Retention;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
@@ -18,7 +19,7 @@ public class Intersection implements Paintable {
 
     private static int intersection_index_x = 0, intersection_index_y = 0;
 
-    private final HashSet<Car> waiting = new HashSet<>();
+    private final HashSet<Car> north_waiting = new HashSet<>(), south_waiting = new HashSet<>(), west_waiting = new HashSet<>(), east_waiting = new HashSet<>();
     private final IntersectionType type;
     private final Point location, index;  // NOTE: this is the location of the CENTER of the intersection
     private Road north_road = null, south_road = null, east_road = null, west_road = null;
@@ -70,6 +71,21 @@ public class Intersection implements Paintable {
                     throw new RuntimeException("Cual tipo de camino es esto?!");
             }
         }
+
+        public HashSet<Car> getWaitingCars(Intersection intersection) {
+            switch (this) {
+                case NORTH:
+                    return intersection.getNorthWaitingCars();
+                case SOUTH:
+                    return intersection.getSouthWaitingCars();
+                case WEST:
+                    return intersection.getWestWaitingCars();
+                case EAST:
+                    return intersection.getEastWaitingCars();
+                default:
+                    throw new RuntimeException("What kind of direction is \"" + this + "?");
+            }
+        }
     }
 
     boolean addRoad(Road road, RoadDirection direction) {
@@ -108,8 +124,20 @@ public class Intersection implements Paintable {
                 && point.y <= location.y + getHeight() / 2;
     }
 
-    public Set<Car> getWaitingCars() {
-        return waiting;
+    public HashSet<Car> getNorthWaitingCars() {
+        return north_waiting;
+    }
+
+    public HashSet<Car> getSouthWaitingCars() {
+        return south_waiting;
+    }
+
+    public HashSet<Car> getEastWaitingCars() {
+        return east_waiting;
+    }
+
+    public HashSet<Car> getWestWaitingCars() {
+        return west_waiting;
     }
 
     public IntersectionType getType() {
